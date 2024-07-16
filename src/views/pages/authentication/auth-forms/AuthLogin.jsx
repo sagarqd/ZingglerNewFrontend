@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-
+import axios from 'axios';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -39,7 +39,7 @@ const AuthLogin = ({ ...others }) => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const customization = useSelector((state) => state.customization);
   const [checked, setChecked] = useState(true);
-
+  const [apiData, setApiData] = useState(null);
   const googleHandler = async () => {
     console.error('Login');
   };
@@ -52,7 +52,29 @@ const AuthLogin = ({ ...others }) => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
+  const fetchData = async (formData) => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', formData);
+      console.log('Registration successful:', response.data); // Log successful registration response
+      // Optionally, redirect or show success message
+    } catch (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Server responded with an error:', error.response.data);
+        setApiError(error.response.data.message); // Set API error message in state
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Request was made but no response was received:', error.request);
+        setApiError('No response from server'); // Set generic error message
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up the request:', error.message);
+        setApiError('Request error'); // Set generic error message
+      }
+      console.error('Registration error:', error);
+    }
+  };
   return (
     <>
       <Grid container direction="column" justifyContent="center" spacing={2}>
@@ -82,6 +104,15 @@ const AuthLogin = ({ ...others }) => {
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required')
         })}
+        onSubmit={(values, { setSubmitting }) => {
+          setSubmitting(true);
+          // Example of form data to send to server
+          const formData = {
+            email: values.email,
+            password: values.password,
+          };
+          fetchData(formData); // Call fetchData function with form data
+        }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>

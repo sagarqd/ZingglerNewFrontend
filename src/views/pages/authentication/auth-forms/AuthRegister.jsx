@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-
+import axios from 'axios';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -41,7 +41,7 @@ const AuthRegister = ({ ...others }) => {
   const customization = useSelector((state) => state.customization);
   const [showPassword, setShowPassword] = useState(false);
   const [checked, setChecked] = useState(true);
-
+  const [apiData, setApiData] = useState(null);
   const [strength, setStrength] = useState(0);
   const [level, setLevel] = useState();
 
@@ -67,6 +67,29 @@ const AuthRegister = ({ ...others }) => {
     changePassword('123456');
   }, []);
 
+  const fetchData = async (formData) => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/register', formData);
+      console.log('Registration successful:', response.data); // Log successful registration response
+      // Optionally, redirect or show success message
+    } catch (error) {
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Server responded with an error:', error.response.data);
+        setApiError(error.response.data.message); // Set API error message in state
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Request was made but no response was received:', error.request);
+        setApiError('No response from server'); // Set generic error message
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up the request:', error.message);
+        setApiError('Request error'); // Set generic error message
+      }
+      console.error('Registration error:', error);
+    }
+  };
   return (
     <>
       <Grid container direction="column" justifyContent="center" spacing={2}>
@@ -82,15 +105,29 @@ const AuthRegister = ({ ...others }) => {
       </Grid>
 
       <Formik
-        initialValues={{
+         initialValues={{
+          fname: '',
+          lname: '',
           email: '',
-          password: '',
-          submit: null
+          password: ''
         }}
         validationSchema={Yup.object().shape({
+          fname: Yup.string().required('First Name is required'),
+          lname: Yup.string().required('Last Name is required'),
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
           password: Yup.string().max(255).required('Password is required')
         })}
+        onSubmit={(values, { setSubmitting }) => {
+          setSubmitting(true);
+          // Example of form data to send to server
+          const formData = {
+            email: values.email,
+            password: values.password,
+            firstName: values.fname,
+            lastName: values.lname
+          };
+          fetchData(formData); // Call fetchData function with form data
+        }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
@@ -103,6 +140,11 @@ const AuthRegister = ({ ...others }) => {
                   name="fname"
                   type="text"
                   defaultValue=""
+                  value={values.fname}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  error={touched.fname && Boolean(errors.fname)}
+                  helperText={touched.fname && errors.fname}
                   sx={{ ...theme.typography.customInput }}
                 />
               </Grid>
@@ -114,6 +156,11 @@ const AuthRegister = ({ ...others }) => {
                   name="lname"
                   type="text"
                   defaultValue=""
+                  value={values.lname}
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  error={touched.lname && Boolean(errors.lname)}
+                  helperText={touched.lname && errors.lname}
                   sx={{ ...theme.typography.customInput }}
                 />
               </Grid>
