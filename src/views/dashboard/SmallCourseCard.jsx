@@ -4,7 +4,7 @@ import MonetizationOnTwoToneIcon from '@mui/icons-material/MonetizationOnTwoTone
 
 const SmallCourseCard = () => {
   return (
-    <Grid lg={12} md={12} sm={12} xs={12}>
+    <Grid item lg={12} md={12} sm={12} xs={12}>
       <Card elevation={0} sx={{ borderRadius: '8px', backgroundColor: 'grey.300' }}>
         <CardContent>
           <Grid container alignItems="center">

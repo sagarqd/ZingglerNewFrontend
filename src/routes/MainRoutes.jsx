@@ -6,6 +6,7 @@ import ProtectedRoute from './ProtectedRoute';
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 
+// authentication routing
 const AuthRegister = Loadable(lazy(() => import('views/pages/authentication3/Register')));
 
 // utilities routing
@@ -18,6 +19,7 @@ const Profile = Loadable(lazy(() => import('views/pages/users/Profile')));
 const UserList = Loadable(lazy(() => import('views/pages/users/UserList')));
 const UserGroup = Loadable(lazy(() => import('views/pages/users/UserGroup')));
 
+// courses routing
 const ListView = Loadable(lazy(() => import('views/pages/courses/ListView')));
 const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
 const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
@@ -30,25 +32,25 @@ const MainRoutes = {
   children: [
     {
       path: '/',
-      element: <AuthRegister />
+      element: <AuthRegister /> // Public route, no need for ProtectedRoute
     },
     {
       path: 'dashboard',
-      element: <ProtectedRoute element={<MainLayout />} />,
+      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
       children: [
         {
           path: 'default',
-          element: <ProtectedRoute element={<DashboardDefault />} />
+          element: <ProtectedRoute element={<DashboardDefault />} /> // Protected route inside MainLayout
         }
       ]
     },
     {
       path: 'utils',
-      element: <ProtectedRoute element={<MainLayout />} />,
+      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
       children: [
         {
           path: 'util-typography',
-          element: <ProtectedRoute element={<UtilsTypography />} />
+          element: <ProtectedRoute element={<UtilsTypography />} /> // Protected route inside MainLayout
         },
         {
           path: 'util-color',
@@ -62,11 +64,11 @@ const MainRoutes = {
     },
     {
       path: 'sample-page',
-      element: <ProtectedRoute element={<SamplePage />} />
+      element: <ProtectedRoute element={<SamplePage />} /> // Protected route
     },
     {
       path: 'users',
-      element: <ProtectedRoute element={<MainLayout />} />,
+      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
       children: [
         {
           path: 'list',
@@ -84,7 +86,7 @@ const MainRoutes = {
     },
     {
       path: 'courses',
-      element: <ProtectedRoute element={<MainLayout />} />,
+      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
       children: [
         {
           path: 'course-list',

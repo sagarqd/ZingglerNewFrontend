@@ -44,18 +44,14 @@ const AuthLogin = ({ ...others }) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', formData);
       console.log('Login successful', response.data);
-      navigate('/dashboard');
-      setApiError(null); // Clear any previous error
-      // Additional logic after successful login
+      localStorage.setItem('token', response.data.token); // Save token here
+      navigate('/dashboard/default'); // Navigate to dashboard on successful login
     } catch (error) {
       console.error('Error logging in:', error);
-      if (error.response && error.response.status === 401) {
-        setApiError('Invalid email or password. Please try again.');
-      } else {
-        setApiError('Error occurred during login. Please try again.');
-      }
+      // Handle error
     }
   };
+  
  
   const handleForgotPassword = async (values) => {
     try {
