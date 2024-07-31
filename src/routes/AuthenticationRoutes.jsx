@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 import Loadable from 'ui-component/Loadable';
 import MinimalLayout from 'layout/MinimalLayout';
+import ProtectedRoute from './ProtectedRoute'; // Import the ProtectedRoute component
 
 // login option 3 routing
 const AuthLogin = Loadable(lazy(() => import('views/pages/authentication3/Login')));
@@ -21,7 +22,11 @@ const AuthenticationRoutes = {
     },
     {
       path: 'verify',
-      element: <Verification />
+      element: (
+        <ProtectedRoute>
+          <Verification />
+        </ProtectedRoute>
+      )
     },
   ]
 };

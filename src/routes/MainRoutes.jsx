@@ -1,14 +1,12 @@
 import { lazy } from 'react';
-
-// project imports
-import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
+import MainLayout from 'layout/MainLayout';
+import ProtectedRoute from './ProtectedRoute';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 
 const AuthRegister = Loadable(lazy(() => import('views/pages/authentication3/Register')));
-
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -22,22 +20,10 @@ const UserGroup = Loadable(lazy(() => import('views/pages/users/UserGroup')));
 
 const ListView = Loadable(lazy(() => import('views/pages/courses/ListView')));
 const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
-
-
 const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
-
-
-
-
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
-
-// ==============================|| MAIN ROUTING ||============================== //
-
-// ==============================|| MAIN ROUTING ||============================== //
-
-// ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
   path: '/',
@@ -48,68 +34,69 @@ const MainRoutes = {
     },
     {
       path: 'dashboard',
-      element: <MainLayout />,
+      element: <ProtectedRoute element={<MainLayout />} />,
       children: [
         {
           path: 'default',
-          element: <DashboardDefault />
+          element: <ProtectedRoute element={<DashboardDefault />} />
         }
       ]
     },
     {
       path: 'utils',
+      element: <ProtectedRoute element={<MainLayout />} />,
       children: [
         {
           path: 'util-typography',
-          element: <UtilsTypography />
+          element: <ProtectedRoute element={<UtilsTypography />} />
         },
         {
           path: 'util-color',
-          element: <UtilsColor />
+          element: <ProtectedRoute element={<UtilsColor />} />
         },
         {
           path: 'util-shadow',
-          element: <UtilsShadow />
+          element: <ProtectedRoute element={<UtilsShadow />} />
         }
       ]
     },
     {
       path: 'sample-page',
-      element: <SamplePage />
+      element: <ProtectedRoute element={<SamplePage />} />
     },
     {
       path: 'users',
-      element: <MainLayout />,
+      element: <ProtectedRoute element={<MainLayout />} />,
       children: [
         {
           path: 'list',
-          element: <UserList />
+          element: <ProtectedRoute element={<UserList />} />
         },
         {
           path: 'group',
-          element: <UserGroup />
+          element: <ProtectedRoute element={<UserGroup />} />
         },
         {
           path: 'profile',
-          element: <Profile />
+          element: <ProtectedRoute element={<Profile />} />
         }
       ]
     },
     {
       path: 'courses',
-      element: <MainLayout />,
+      element: <ProtectedRoute element={<MainLayout />} />,
       children: [
         {
           path: 'course-list',
-          element: <ListView />
+          element: <ProtectedRoute element={<ListView />} />
         },
         {
           path: 'course-grid',
-          element: <GridView />
+          element: <ProtectedRoute element={<GridView />} />
         },
         {
           path: 'new-course',
-          element: <NewCourse />
+          element: <ProtectedRoute element={<NewCourse />} />
         }
       ]
     }
@@ -117,5 +104,3 @@ const MainRoutes = {
 };
 
 export default MainRoutes;
-
-
