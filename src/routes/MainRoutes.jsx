@@ -1,13 +1,14 @@
 import { lazy } from 'react';
-import Loadable from 'ui-component/Loadable';
+
+// project imports
 import MainLayout from 'layout/MainLayout';
-import ProtectedRoute from './ProtectedRoute';
+import Loadable from 'ui-component/Loadable';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 
-// authentication routing
 const AuthRegister = Loadable(lazy(() => import('views/pages/authentication3/Register')));
+
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -18,87 +19,102 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const Profile = Loadable(lazy(() => import('views/pages/users/Profile')));
 const UserList = Loadable(lazy(() => import('views/pages/users/UserList')));
 const UserGroup = Loadable(lazy(() => import('views/pages/users/UserGroup')));
+const UserPermissions = Loadable(lazy(() => import('views/pages/users/UserPermissions')));
 
-// courses routing
 const ListView = Loadable(lazy(() => import('views/pages/courses/ListView')));
 const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
+
+
 const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
+
+
+
+
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
+
+// ==============================|| MAIN ROUTING ||============================== //
+
+// ==============================|| MAIN ROUTING ||============================== //
+
+// ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
   path: '/',
   children: [
     {
       path: '/',
-      element: <AuthRegister /> // Public route, no need for ProtectedRoute
+      element: <AuthRegister />
     },
     {
       path: 'dashboard',
-      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
+      element: <MainLayout />,
       children: [
         {
           path: 'default',
-          element: <ProtectedRoute element={<DashboardDefault />} /> // Protected route inside MainLayout
+          element: <DashboardDefault />
         }
       ]
     },
     {
       path: 'utils',
-      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
       children: [
         {
           path: 'util-typography',
-          element: <ProtectedRoute element={<UtilsTypography />} /> // Protected route inside MainLayout
+          element: <UtilsTypography />
         },
         {
           path: 'util-color',
-          element: <ProtectedRoute element={<UtilsColor />} />
+          element: <UtilsColor />
         },
         {
           path: 'util-shadow',
-          element: <ProtectedRoute element={<UtilsShadow />} />
+          element: <UtilsShadow />
         }
       ]
     },
     {
       path: 'sample-page',
-      element: <ProtectedRoute element={<SamplePage />} /> // Protected route
+      element: <SamplePage />
     },
     {
       path: 'users',
-      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
+      element: <MainLayout />,
       children: [
         {
           path: 'list',
-          element: <ProtectedRoute element={<UserList />} />
+          element: <UserList />
         },
         {
           path: 'group',
-          element: <ProtectedRoute element={<UserGroup />} />
+          element: <UserGroup />
         },
         {
           path: 'profile',
-          element: <ProtectedRoute element={<Profile />} />
+          element: <Profile />
+        },
+        {
+          path: 'user-permissions',
+          element: <UserPermissions />
         }
       ]
     },
     {
       path: 'courses',
-      element: <ProtectedRoute element={<MainLayout />} />, // Main layout is protected
+      element: <MainLayout />,
       children: [
         {
           path: 'course-list',
-          element: <ProtectedRoute element={<ListView />} />
+          element: <ListView />
         },
         {
           path: 'course-grid',
-          element: <ProtectedRoute element={<GridView />} />
+          element: <GridView />
         },
         {
           path: 'new-course',
-          element: <ProtectedRoute element={<NewCourse />} />
+          element: <NewCourse />
         }
       ]
     }
@@ -106,3 +122,5 @@ const MainRoutes = {
 };
 
 export default MainRoutes;
+
+

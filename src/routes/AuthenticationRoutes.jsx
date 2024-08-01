@@ -1,12 +1,18 @@
 import { lazy } from 'react';
 import Loadable from 'ui-component/Loadable';
 import MinimalLayout from 'layout/MinimalLayout';
-import ProtectedRoute from './ProtectedRoute'; // Import the ProtectedRoute component
 
 // login option 3 routing
 const AuthLogin = Loadable(lazy(() => import('views/pages/authentication3/Login')));
 const AuthRegister = Loadable(lazy(() => import('views/pages/authentication3/Register')));
 const Verification = Loadable(lazy(() => import('views/pages/verification/Verification')));
+const ForgotPassword = Loadable(lazy(() => import('views/pages/verification/ForgotPassword')));
+const RecoveryEmail = Loadable(lazy(() => import('views/pages/verification/RecoveryEmail')));
+const RecoveryEmailVerification = Loadable(lazy(() => import('views/pages/verification/RecoveryEmailVerification')));
+const ResetPassword = Loadable(lazy(() => import('views/pages/verification/ResetPassword')));
+
+
+
 
 const AuthenticationRoutes = {
   path: '/',
@@ -22,12 +28,26 @@ const AuthenticationRoutes = {
     },
     {
       path: 'verify',
-      element: (
-        <ProtectedRoute>
-          <Verification />
-        </ProtectedRoute>
-      )
+      element: <Verification />
     },
+    {
+      path: 'email-recovery',
+      element: <RecoveryEmail />
+    },
+    {
+      path: 'forgot-password',
+      element: <ForgotPassword />
+    },
+    {
+      path: 'recovery-email-verify',
+      element: <RecoveryEmailVerification />
+    },
+    {
+      path: 'reset-password',
+      element: <ResetPassword />
+    },
+    
+    
   ]
 };
 

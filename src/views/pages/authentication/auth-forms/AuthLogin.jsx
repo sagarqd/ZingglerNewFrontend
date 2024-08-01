@@ -29,6 +29,8 @@ const AuthLogin = ({ ...others }) => {
   const customization = useSelector((state) => state.customization);
   const [checked, setChecked] = useState(true);
   const [apiError, setApiError] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -48,7 +50,8 @@ const AuthLogin = ({ ...others }) => {
       navigate('/dashboard/default'); // Navigate to dashboard on successful login
     } catch (error) {
       console.error('Error logging in:', error);
-      // Handle error
+      setSnackbarMessage('Wrong email or password');
+      setSnackbarOpen(true);
     }
   };
   
@@ -67,6 +70,10 @@ const AuthLogin = ({ ...others }) => {
       console.error('Error initiating password reset:', error);
       setApiError('Error initiating password reset. Please try again.');
     }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (

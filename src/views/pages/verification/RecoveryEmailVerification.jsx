@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Logo from 'ui-component/Logo';
 
 
-const VerificationCode = () => {
+const RecoveryEmailVerification = () => {
   const [otp, setOtp] = useState(Array(6).fill(''));
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(10); // Set to 10 seconds
@@ -109,7 +109,7 @@ const VerificationCode = () => {
                     <Grid item>
                       <Stack spacing={2}>
                         <Typography variant="h2" gutterBottom>
-                          Email Verification Code
+                        Recovery Email verification code
                         </Typography>
                         <Typography variant="h4" gutterBottom>
                           Enter OTP
@@ -190,4 +190,4 @@ const VerificationCode = () => {
   );
 };
 
-export default VerificationCode;
+export default RecoveryEmailVerification;
