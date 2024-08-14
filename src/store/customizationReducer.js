@@ -3,12 +3,14 @@ import config from 'config';
 
 // action - state management
 import * as actionTypes from './actions';
+import { SET_USER } from './actions';
 
 export const initialState = {
   isOpen: [], // for active default menu
   defaultId: 'default',
   fontFamily: config.fontFamily,
   borderRadius: config.borderRadius,
+  user: null,
   opened: true
 };
 
@@ -37,6 +39,11 @@ const customizationReducer = (state = initialState, action) => {
       return {
         ...state,
         borderRadius: action.borderRadius
+      };
+      case SET_USER:
+      return {
+        ...state,
+        user: action.payload // Set the user data from the action payload
       };
     default:
       return state;

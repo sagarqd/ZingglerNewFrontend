@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -44,7 +45,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-
 const options = [
   { text: 'View Course', icon: <VisibilityIcon sx={{ marginRight: 1, verticalAlign: 'middle' }} fontSize="small" /> },
   { text: 'Edit Course', icon: <EditIcon sx={{ marginRight: 1, verticalAlign: 'middle' }} fontSize="small" /> },
@@ -57,7 +57,7 @@ const CourseCard = ({ course, handleClick }) => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
-
+   const navigate=useNavigate();
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
@@ -94,27 +94,47 @@ const CourseCard = ({ course, handleClick }) => {
   const createdAtValid = moment(createdAt).isValid() ? moment(createdAt).fromNow() : 'Invalid date';
   const updatedAtValid = moment(updatedAt).isValid() ? moment(updatedAt).fromNow() : 'Invalid date';
 
-
   return (
-    <Card sx={{ display: 'flex', width: '100%', padding: 2, marginBottom: 4, marginTop: 4,flexDirection: { xs: 'column', md: 'row' } }}>
+    <Card sx={{ display: 'flex', width: '100%', padding: 2, marginBottom: 4, marginTop: 4, flexDirection: { xs: 'column', md: 'row' } }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'center', width: '100%' }}>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: { xs: 'column', md: 'row' } }}>
             <CardMedia
               component="img"
-              sx={{ width: { xs: '100%', md: 140 }, height: { xs: '100%', md: 140 }, position: 'relative', borderRadius: 2, marginBottom: { xs: 2, md: 0 } }}
+              sx={{
+                width: { xs: '100%', md: 140 },
+                height: { xs: '100%', md: 140 },
+                position: 'relative',
+                borderRadius: 2,
+                marginBottom: { xs: 2, md: 0 }
+              }}
               image={course.description.courseThumbnail}
               alt={course.title}
             />
-            
+
             <Box margin={3} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <Typography component="div" variant="h5" sx={{ fontFamily: 'Poppins, sans-serif', width: { xs: '100%', md: '300px', sm: '100%' } }}>
-              {course.general.courseInformation.courseFullName}
+              <Typography
+                component="div"
+                variant="h5"
+                sx={{ fontFamily: 'Poppins, sans-serif', width: { xs: '100%', md: '300px', sm: '100%' } }}
+              >
+                {course.general.courseInformation.courseFullName}
                 <Box marginTop={3} sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-                  <Typography variant="h5" color="text.secondary" marginRight={3} component="div" sx={{ fontFamily: 'Poppins, sans-serif', whiteSpace: 'nowrap' }}>
-                  {course.general.courseInformation.teacherName}
+                  <Typography
+                    variant="h5"
+                    color="text.secondary"
+                    marginRight={3}
+                    component="div"
+                    sx={{ fontFamily: 'Poppins, sans-serif', whiteSpace: 'nowrap' }}
+                  >
+                    {course.general.courseInformation.teacherName}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" component="div" sx={{ fontFamily: 'Poppins, sans-serif', whiteSpace: 'nowrap' }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    component="div"
+                    sx={{ fontFamily: 'Poppins, sans-serif', whiteSpace: 'nowrap' }}
+                  >
                     {updatedAtValid}
                   </Typography>
                 </Box>
@@ -133,25 +153,40 @@ const CourseCard = ({ course, handleClick }) => {
               <span style={{ fontWeight: 'bold' }}>{numStudents}</span>+ Enrolled
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingRight: 2, marginTop: { xs: 2, md: 0 } }}>
-            <ButtonGroup variant="contained" color="secondary" ref={anchorRef} aria-label="split button" sx={{ 
-              boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px',
-            }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingRight: 2,
+              marginTop: { xs: 2, md: 0 }
+            }}
+          >
+            <ButtonGroup
+              variant="contained"
+              color="secondary"
+              ref={anchorRef}
+              aria-label="split button"
+              sx={{
+                boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px'
+              }}
+            >
               <Button onClick={handleClick}>
                 {options[selectedIndex].icon}
                 {options[selectedIndex].text}
               </Button>
               <Button
                 color="secondary"
-                variant='outlined'
+                variant="outlined"
                 size="small"
                 aria-controls={open ? 'split-button-menu' : undefined}
                 aria-expanded={open ? 'true' : undefined}
                 aria-label="select action"
                 aria-haspopup="menu"
                 onClick={handleToggle}
-                sx={{ 
-                  boxShadow: 3, // Soft shadow
+                sx={{
+                  boxShadow: 3 // Soft shadow
                 }}
               >
                 <ArrowDropDownIcon />
@@ -162,7 +197,7 @@ const CourseCard = ({ course, handleClick }) => {
                 <Grow
                   {...TransitionProps}
                   style={{
-                    transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
+                    transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom'
                   }}
                 >
                   <Paper>
@@ -188,7 +223,6 @@ const CourseCard = ({ course, handleClick }) => {
         </Box>
       </Box>
     </Card>
-
   );
 };
 
@@ -201,24 +235,37 @@ const ListView = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate=useNavigate();
 
 
   useEffect(() => {
     const fetchCourses = async () => {
+      setLoading(true); // Set loading to true when starting the fetch
       try {
         console.log('Fetching courses...');
         const response = await axios.get('http://localhost:8080/api/courses/'); // Replace with your API endpoint
-        setCourses(response.data);
-        console.log('Courses fetched:', response.data);
-        setLoading(false);
+
+        // Filter out courses with 'draft' status
+        const validCourses = response.data.filter((course) => course.status !== 'draft');
+
+        setCourses(validCourses);
+        console.log('Courses fetched:', validCourses);
       } catch (err) {
         setError(err);
-        setLoading(false);
+        console.error('Error fetching courses:', err);
+      } finally {
+        setLoading(false); // Always set loading to false after fetching
       }
     };
-  
+
     fetchCourses();
   }, []);
+
+  const handleAddCourseClick = () => {
+    navigate('/courses/new-course')
+    setOpen(true);
+    setFormValues({ title: '', description: '', thumbnail: '', videoUrl: '' });
+  };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -230,7 +277,7 @@ const ListView = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prevValues => ({
+    setFormValues((prevValues) => ({
       ...prevValues,
       [name]: value
     }));
@@ -245,11 +292,12 @@ const ListView = () => {
     handleClose();
   };
 
-  const filteredCourses = courses.filter(course =>
-    course.general && 
-    course.general.advanceSettings && 
-    course.general.advanceSettings.downloadCourse && 
-    course.general.advanceSettings.downloadCourse.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCourses = courses.filter(
+    (course) =>
+      course.general &&
+      course.general.advanceSettings &&
+      course.general.advanceSettings.downloadCourse &&
+      course.general.advanceSettings.downloadCourse.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return <div>Loading...</div>;
@@ -287,12 +335,7 @@ const ListView = () => {
               gap: { xs: 1, sm: 2 } // Adjust gap for small screens
             }}
           >
-            <Button
-              size="medium"
-              variant="outlined"
-              startIcon={<AddCircleOutlineIcon />}
-              sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
-            >
+            <Button size="medium" variant="outlined" startIcon={<AddCircleOutlineIcon />} sx={{ flexShrink: 0, whiteSpace: 'nowrap' }} onClick={handleAddCourseClick}>
               Add New Course
             </Button>
             <OutlinedInput
@@ -321,15 +364,12 @@ const ListView = () => {
       </Paper>
 
       {!isEmpty(filteredCourses) ? (
-        filteredCourses.map((course) => (
-          <CourseCard key={course._id} course={course} />
-        ))
+        filteredCourses.map((course) => <CourseCard key={course._id} course={course} />)
       ) : (
         <Typography variant="h6" sx={{ textAlign: 'center', marginTop: 4 }}>
           No courses found
         </Typography>
       )}
-
     </Container>
   );
 };
@@ -346,7 +386,7 @@ const style = {
   p: 4,
   display: 'flex',
   flexDirection: 'column',
-  gap: 2,
+  gap: 2
 };
 
 export default ListView;

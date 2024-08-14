@@ -188,13 +188,13 @@ const UserPermissions = () => {
                   <Typography variant="h3">User Permissions Management </Typography>
                 </Grid>
                 <Grid item>
-                  <Button size="medium"
+                  {/* <Button size="medium"
                     variant="outlined"
                     color='secondary'
                     startIcon={<AddCircleOutlineIcon />}
                     sx={{ flexShrink: 0, whiteSpace: 'nowrap' }} onClick={handleNewGroupClick}>
                     Add New Role
-                  </Button>
+                  </Button> */}
                 </Grid>
               </Grid>
             }
@@ -259,7 +259,7 @@ const UserPermissions = () => {
         </TableContainer>
       </Paper>
 
-      <Modal
+      {/* <Modal
         open={open}
         onClose={handleClose}
         closeAfterTransition
@@ -269,7 +269,7 @@ const UserPermissions = () => {
         <Fade in={open}>
           <Box sx={style}>
             <Typography variant="h6" component="h2">
-              {formValues._id ? 'Edit Group' : 'Add New Group'}
+              {formValues._id ? 'Edit Group' : 'Add New Role'}
             </Typography>
             <form onSubmit={handleSubmit}>
               <TextField
@@ -277,7 +277,7 @@ const UserPermissions = () => {
                 required
                 fullWidth
                 id="groupName"
-                label="Group Name"
+                label="Enter Role"
                 name="groupName"
                 value={formValues.groupName}
                 onChange={handleChange}
@@ -309,7 +309,7 @@ const UserPermissions = () => {
             </form>
           </Box>
         </Fade>
-      </Modal>
+      </Modal> */}
     </Container>
   );
 };

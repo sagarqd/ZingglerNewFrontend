@@ -22,6 +22,8 @@ import Stack from '@mui/material/Stack';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AnimateButton from 'ui-component/extended/AnimateButton';
+import { setUser } from 'store/action';
+import { useDispatch } from 'react-redux';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
@@ -29,9 +31,9 @@ const AuthLogin = ({ ...others }) => {
   const customization = useSelector((state) => state.customization);
   const [checked, setChecked] = useState(true);
   const [apiError, setApiError] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.customization.user);
 
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
@@ -45,35 +47,28 @@ const AuthLogin = ({ ...others }) => {
   const fetchData = async (formData) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', formData);
+
       console.log('Login successful', response.data);
-      localStorage.setItem('token', response.data.token); // Save token here
-      navigate('/dashboard/default'); // Navigate to dashboard on successful login
+      navigate('/dashboard/default');
+      setApiError(null); // Clear any previous error
+      // Additional logic after successful login
     } catch (error) {
       console.error('Error logging in:', error);
-      setSnackbarMessage('Wrong email or password');
-      setSnackbarOpen(true);
+      if (error.response && error.response.status === 401) {
+        setApiError('Invalid email or password. Please try again.');
+      } else {
+        setApiError('Error occurred during login. Please try again.');
+      }
     }
   };
-  
  
   const handleForgotPassword = async (values) => {
     try {
-      // Send a request to your backend to handle the password reset process
-      console.log('Forgot password request for email:', values.email);
-      // Example code to initiate password reset
-      // const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email: values.email });
-      // Handle response accordingly
-      // Display success message or error message based on response
-      setApiError('Password reset link sent. Check your email.');
-      handleForgotDialogClose();
+      navigate('/forgot-password')
     } catch (error) {
       console.error('Error initiating password reset:', error);
       setApiError('Error initiating password reset. Please try again.');
     }
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
   };
 
   return (
@@ -175,7 +170,7 @@ const AuthLogin = ({ ...others }) => {
                 }
                 label="Remember me"
               />
-              <Typography variant="subtitle1" color="secondary" sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+              <Typography variant="subtitle1" color="secondary" sx={{ textDecoration: 'none', cursor: 'pointer' }} onClick={handleForgotPassword}>
                 Forgot Password?
               </Typography>
             </Stack>

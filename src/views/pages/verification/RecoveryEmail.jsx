@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import { Box, Card, Container, Grid, Stack, Typography, TextField, Button, Link, Divider } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -8,20 +8,38 @@ const RecoveryEmail = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [countdown, setCountdown] = useState(10); // Set to 10 seconds
   const navigate = useNavigate();
 
-  const handleSendRecoveryEmail = async () => {
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown(prevCountdown => (prevCountdown > 0 ? prevCountdown - 1 : 0));
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
+
+  const handleSendOtp = async () => {
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/send-recovery-email', { email });
+      if (!email) {
+        throw new Error('Please enter a valid email address.');
+      }
+
+      const response = await axios.post('http://localhost:8080/api/forgot-password', { email });
 
       if (response.status === 200) {
-        setSuccess('Recovery email sent successfully. Please check your inbox.');
-        setTimeout(() => navigate('/forgot-password-verification'), 3000); // Redirect to verification page after 3 seconds
+        console.log('OTP sent successfully');
+        setCountdown(10); // Set countdown to 10 seconds
+        localStorage.setItem('email', email);
+        navigate('/recovery-email-verify'); // Redirect to OTP verification page
       } else {
-        throw new Error('Failed to send recovery email');
+        throw new Error('Failed to send OTP');
       }
     } catch (error) {
-      setError('Failed to send recovery email. Please try again.');
+      console.error('Error sending OTP:', error);
+      setError('Failed to send OTP. Please try again.');
     }
   };
 
@@ -55,7 +73,7 @@ const RecoveryEmail = () => {
                             Try another way!
                         </Typography>
                         <Typography variant="h5" gutterBottom>
-                            Your Recovery Email Account is te****23@gmail.com
+                            Your Recovery Email Account is {email}
                         </Typography>
                       </Stack>
                     </Grid>
@@ -75,7 +93,7 @@ const RecoveryEmail = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sx={{ mb: 2 }}>
-                  <Button variant="contained" color="secondary" fullWidth size="large" onClick={handleSendRecoveryEmail}>
+                  <Button variant="contained" color="secondary" fullWidth size="large" onClick={handleSendOtp}>
                   Send OTP
                   </Button>
                 </Grid>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -47,15 +48,18 @@ const GridView = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loading, setLoading] = useState(false); // Define loading and error state
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true); // Set loading to true when starting the fetch
       try {
         console.log('Fetching courses...');
         const response = await axios.get('http://localhost:8080/api/courses/');
-        setCourses(response.data);
-        console.log('Courses fetched:', response.data);
+        // Filter out courses with status 'draft'
+        const validCourses = response.data.filter((course) => course.status !== 'draft');
+
+        setCourses(validCourses);
+        console.log('Courses fetched:', validCourses);
       } catch (err) {
         setError(err);
         console.error('Error fetching courses:', err);
@@ -63,11 +67,12 @@ const GridView = () => {
         setLoading(false); // Always set loading to false after fetching
       }
     };
-  
+
     fetchCourses();
   }, []);
 
   const handleAddCourseClick = () => {
+    navigate('/courses/new-course')
     setOpen(true);
     setFormValues({ title: '', description: '', thumbnail: '', videoUrl: '' });
   };
@@ -75,7 +80,7 @@ const GridView = () => {
   const handleClose = () => {
     setOpen(false);
   };
-  
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormValues({ ...formValues, [name]: value });
@@ -84,16 +89,22 @@ const GridView = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/api/courses', formValues);
-      setCourses([...courses, response.data]);
+      if (editMode && selectedCourse) {
+        await axios.put(`http://localhost:8080/api/courses/${selectedCourse._id}`, formValues);
+        setCourses(courses.map(course => course._id === selectedCourse._id ? { ...course, ...formValues } : course));
+      } else {
+        const response = await axios.post('http://localhost:8080/api/courses', formValues);
+        setCourses([...courses, response.data]);
+      }
       handleClose();
     } catch (error) {
-      console.error('Error adding course:', error);
+      console.error('Error saving course:', error);
     }
   };
 
-  const filteredCourses = (courses || []).filter(course =>
-    course?.general?.advanceSettings?.downloadCourse?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCourses = (courses || []).filter(
+    (course) =>
+      course.status !== 'draft' && course.general?.advanceSettings?.downloadCourse?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleClick = (event, course) => {
@@ -106,15 +117,29 @@ const GridView = () => {
     setSelectedCourse(null);
   };
 
-  const handleEdit = () => {
-    // Handle edit action
+ const handleEditClick = (course) => {
+    setEditMode(true);
+    setSelectedCourse(course);
+    setFormValues({
+      title: course.title || '',
+      description: course.description || '',
+      thumbnail: course.thumbnail || '',
+      videoUrl: course.videoUrl || ''
+    });
+    setOpen(true);
+  };
+
+  const handleDeleteClick = async () => {
+    if (!selectedCourse) return;
+    try {
+      await axios.delete(`http://localhost:8080/api/courses/${selectedCourse._id}`);
+      setCourses(courses.filter(course => course._id !== selectedCourse._id));
+    } catch (error) {
+      console.error('Error deleting course:', error);
+    }
     handleCloseMenu();
   };
 
-  const handleDelete = () => {
-    // Handle delete action
-    handleCloseMenu();
-  };
 
   return (
     <Container maxWidth="xl">
@@ -150,7 +175,6 @@ const GridView = () => {
           >
             <Button
               size="medium"
-              color='secondary'
               variant="outlined"
               startIcon={<AddCircleOutlineIcon />}
               sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
@@ -193,12 +217,7 @@ const GridView = () => {
             <Grid item xs={12} sm={6} md={4} lg={3} key={course._id}>
               <Card>
                 <Box position="relative">
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={course.description.courseThumbnail}
-                    alt={course.title}
-                  />
+                  <CardMedia component="img" height="200" image={course.description.courseThumbnail} alt={course.title} />
                   <Box
                     position="absolute"
                     top={12}
@@ -210,10 +229,10 @@ const GridView = () => {
                     borderRadius="4px"
                     padding="2px 4px"
                   >
-                    <Typography 
-                      variant="body2" 
-                      color="white" 
-                      sx={{ 
+                    <Typography
+                      variant="body2"
+                      color="white"
+                      sx={{
                         padding: '6px 16px',
                         bgcolor: 'rgba(0, 0, 0, 0.5)',
                         borderRadius: '4px'
@@ -222,10 +241,7 @@ const GridView = () => {
                       3 Hours
                     </Typography>
 
-                    <IconButton
-                      onClick={(event) => handleClick(event, course)}
-                      sx={{ color: 'secondary' }}
-                    >
+                    <IconButton onClick={(event) => handleClick(event, course)} sx={{ color: 'secondary' }}>
                       <MoreVertIcon />
                     </IconButton>
                     <Menu
@@ -236,29 +252,21 @@ const GridView = () => {
                         sx: {
                           width: '200px',
                           boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)'
-                        },
+                        }
                       }}
                     >
-                      <MenuItem onClick={handleEdit}>
+                      <MenuItem onClick={handleEditClick}>
                         <EditIcon sx={{ marginRight: 1 }} />
                         Edit
                       </MenuItem>
-                      <MenuItem onClick={handleDelete}>
+                      <MenuItem onClick={handleDeleteClick}>
                         <DeleteIcon sx={{ marginRight: 1 }} />
                         Delete
                       </MenuItem>
                     </Menu>
                   </Box>
                 </Box>
-                <Box
-                  position="relative"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  mt={-4}
-                  mb={1}
-                  sx={{ height: 56 }}
-                >
+                <Box position="relative" display="flex" alignItems="center" justifyContent="center" mt={-4} mb={1} sx={{ height: 56 }}>
                   <Badge
                     overlap="circular"
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -275,11 +283,7 @@ const GridView = () => {
                       }
                     }}
                   >
-                    <Avatar
-                      alt="User 1"
-                      src="/assets/profile-CXNf4CWk.png"
-                      sx={{ width: 56, height: 56 }}
-                    />
+                    <Avatar alt="User 1" src="/assets/profile-CXNf4CWk.png" sx={{ width: 56, height: 56 }} />
                   </Badge>
                 </Box>
 
@@ -415,4 +419,3 @@ const modalStyle = {
 };
 
 export default GridView;
- 

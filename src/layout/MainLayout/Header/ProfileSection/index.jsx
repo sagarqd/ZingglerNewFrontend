@@ -7,21 +7,16 @@ import { useTheme } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Divider from '@mui/material/Divider';
-import Grid from '@mui/material/Grid';
-import InputAdornment from '@mui/material/InputAdornment';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 
 // third-party
@@ -30,31 +25,32 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
-import UpgradePlanCard from './UpgradePlanCard';
 import User1 from 'assets/images/users/user-round.svg';
 
 // assets
-import { IconLogout, IconSearch, IconSettings, IconUser } from '@tabler/icons-react';
+import { IconLogout, IconSettings } from '@tabler/icons-react';
 
 // ==============================|| PROFILE MENU ||============================== //
 
-const ProfileSection = () => {
+const ProfileSection = (logout) => {
   const theme = useTheme();
   const customization = useSelector((state) => state.customization);
   const navigate = useNavigate();
 
-  const user = useSelector((state) => state.user) || {}; // Ensure user is defined
+  const user = useSelector((state) => state.User) || {}; // Ensure user is defined
 
   const [sdm, setSdm] = useState(true);
   const [value, setValue] = useState('');
   const [notification, setNotification] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [selectedIndex, setSelectedIndex] = useState(-1); // Define selectedIndex state
   const [open, setOpen] = useState(false);
 
   const anchorRef = useRef(null);
 
   const handleLogout = async () => {
-    console.log('Logout');
+
+    localStorage.removeItem('accessToken'); // Clear token if used
+    navigate('/login'); // Redirect to login page
   };
 
   const handleClose = (event) => {
@@ -65,7 +61,7 @@ const ProfileSection = () => {
   };
 
   const handleListItemClick = (event, index, route = '') => {
-    setSelectedIndex(index);
+    setSelectedIndex(index); // Update selectedIndex state
     handleClose(event);
 
     if (route && route !== '') {
@@ -86,8 +82,8 @@ const ProfileSection = () => {
     prevOpen.current = open;
   }, [open]);
 
-  // Provide default values if user properties are not available
-  const fullName = `${user.firstName || 'John'} ${user.lastName || 'Doe'}`;
+  // Safely access user properties with default values
+   const fullName = user ? `${user.firstName} ${user.lastName}` : 'Loading...';
 
   return (
     <>
@@ -205,7 +201,7 @@ const ProfileSection = () => {
                         </ListItemButton>
                         <ListItemButton
                           sx={{ borderRadius: `${customization.borderRadius}px` }}
-                          selected={selectedIndex === 4}
+                          selected={selectedIndex === 1} // Updated to check selectedIndex === 1
                           onClick={handleLogout}
                         >
                           <ListItemIcon>

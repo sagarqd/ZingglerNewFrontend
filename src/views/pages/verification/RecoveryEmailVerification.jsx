@@ -17,51 +17,43 @@ const RecoveryEmailVerification = () => {
       const timer = setInterval(() => {
         setCountdown((prevCountdown) => (prevCountdown > 0 ? prevCountdown - 1 : 0));
       }, 1000); // Update every 1 second
-
       return () => clearInterval(timer);
     }
   }, [countdown]);
 
   const handleVerify = async () => {
     try {
-      const email = localStorage.getItem('email');
-
+      const email = localStorage.getItem('email'); // Ensure email is set correctly
       if (!email) {
         throw new Error('Email not found in localStorage');
       }
-
+  
       const response = await axios.post(
-        'http://localhost:8080/api/auth/verify',
-        { email, otp: otp.join('') },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-          }
-        }
+        'http://localhost:8080/api/verify-otp', // Use the correct API endpoint
+        { email, otp: otp.join('') }
       );
-
+  
       if (response.status === 200) {
-        console.log('Email verified successfully');
-        navigate('/dashboard/default/');
+        console.log('OTP verified successfully');
+        navigate('/reset-password'); // Redirect to the password reset page
       } else {
-        throw new Error('Failed to verify email');
+        throw new Error('Failed to verify OTP');
       }
     } catch (error) {
-      console.error('Error verifying email:', error);
-      setError('Failed to verify email. Please try again.');
+      console.error('Error verifying OTP:', error);
+      setError('Failed to verify OTP. Please try again.');
     }
   };
+  
 
   const handleResend = async () => {
     try {
       const email = localStorage.getItem('email');
-
       if (!email) {
         throw new Error('Email not found in localStorage');
       }
 
-      const response = await axios.post('http://localhost:8080/api/auth/resend-otp', { email });
-
+      const response = await axios.post('http://localhost:8080/api/resend-otp', { email });
       console.log('OTP resent successfully:', response.data);
       setCountdown(10); // Reset countdown to 10 seconds
     } catch (error) {
@@ -82,6 +74,9 @@ const RecoveryEmailVerification = () => {
     }
   };
 
+  const handleAnotherWay=()=>{
+    navigate('/email-recovery')
+  }
   return (
     <Container
     maxWidth="lg"
@@ -169,7 +164,7 @@ const RecoveryEmailVerification = () => {
                   </Button>
                 </Grid>
                 <Grid item xs={12}>
-                  <Button variant="text" color="secondary" fullWidth size="large">
+                  <Button variant="text" color="secondary" fullWidth size="large" onClick={handleAnotherWay}>
                     Try Another Way
                   </Button>
                 </Grid>

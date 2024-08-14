@@ -37,6 +37,12 @@ const pages = {
           title: 'User Group',
           type: 'item',
           url: '/users/group',
+        },
+        {
+          id: 'user-permissions',
+          title: 'User Permissions',
+          type: 'item',
+          url: '/users/user-permissions',
         }
       ]
     },
@@ -47,13 +53,6 @@ const pages = {
       type: 'collapse',
       icon: icons.IconBook,
       children: [
-        ,
-        {
-          id: 'new-course',
-          title: 'Add New Course',
-          type: 'item',
-          url: '/courses/new-course',
-        },
         {
           id: 'course-list',
           title: 'Course List',
@@ -65,7 +64,13 @@ const pages = {
           title: 'Course Grid',
           type: 'item',
           url: '/courses/course-grid',
-        }
+        },
+        {
+          id: 'new-course',
+          title: 'Add New Course',
+          type: 'item',
+          url: '/courses/new-course',
+        },
       ]
     },
 

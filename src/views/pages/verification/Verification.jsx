@@ -25,21 +25,27 @@ const VerificationCode = () => {
   const handleVerify = async () => {
     try {
       const email = localStorage.getItem('email');
-
-      if (!email) {
-        throw new Error('Email not found in localStorage');
+      const accessToken = localStorage.getItem('accessToken');
+      const otpValue = otp.join('');
+  
+      if (!email || !accessToken) {
+        throw new Error('Email or accessToken not found in localStorage');
       }
-
+  
+  
       const response = await axios.post(
-        'http://localhost:8080/api/auth/verify',
-        { email, otp: otp.join('') },
+        'http://localhost:8080/api/verify',
+        { email, otp: otpValue },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+            Authorization: `Bearer ${accessToken}`
           }
         }
       );
-
+  
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
+  
       if (response.status === 200) {
         console.log('Email verified successfully');
         navigate('/dashboard/default/');
@@ -51,24 +57,29 @@ const VerificationCode = () => {
       setError('Failed to verify email. Please try again.');
     }
   };
+  
 
   const handleResend = async () => {
     try {
-      const email = localStorage.getItem('email');
+        const email = localStorage.getItem('email');
 
-      if (!email) {
-        throw new Error('Email not found in localStorage');
-      }
+        // Validate email format
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+            throw new Error('Invalid or missing email in localStorage');
+        }
 
-      const response = await axios.post('http://localhost:8080/api/auth/resend-otp', { email });
+        const response = await axios.post('http://localhost:8080/api/auth/resend-otp', { email });
 
-      console.log('OTP resent successfully:', response.data);
-      setCountdown(10); // Reset countdown to 10 seconds
+        console.log('OTP resent successfully:', response.data);
+        setCountdown(10); // Reset countdown to 10 seconds
+        setError(''); // Clear any previous error messages
     } catch (error) {
-      console.error('Error resending OTP:', error);
-      setError('Failed to resend OTP. Please try again.');
+        // Check if error response exists
+        const errorMessage = error.response?.data?.errorMessage || 'Failed to resend OTP. Please try again.';
+        console.error('Error resending OTP:', errorMessage);
+        setError(errorMessage);
     }
-  };
+};
 
   const handleOtpChange = (index, value) => {
     if (/^[0-9]$/.test(value) || value === '') {

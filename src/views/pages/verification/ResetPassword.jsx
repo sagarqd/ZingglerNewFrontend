@@ -21,15 +21,15 @@ const ReserPassword = () => {
 
     try {
       const email = localStorage.getItem('email');
-      const otp = localStorage.getItem('otp'); // Assuming you stored OTP in localStorage
+      
 
-      if (!email || !otp) {
+      if (!email ) {
         throw new Error('Email or OTP not found in localStorage');
       }
 
       const response = await axios.post(
-        'http://localhost:8080/api/auth/reset-password',
-        { email, otp, newPassword },
+        'http://localhost:8080/api/reset-password',
+        { email, newPassword,confirmPassword },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`

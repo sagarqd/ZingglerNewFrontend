@@ -15,70 +15,32 @@ const ForgotPassword = () => {
   useEffect(() => {
     if (countdown > 0) {
       const timer = setInterval(() => {
-        setCountdown((prevCountdown) => (prevCountdown > 0 ? prevCountdown - 1 : 0));
-      }, 1000); // Update every 1 second
+        setCountdown(prevCountdown => (prevCountdown > 0 ? prevCountdown - 1 : 0));
+      }, 1000);
 
       return () => clearInterval(timer);
     }
   }, [countdown]);
 
-  const handleVerify = async () => {
+  const handleSendOtp = async () => {
     try {
-      const email = localStorage.getItem('email');
-
       if (!email) {
-        throw new Error('Email not found in localStorage');
+        throw new Error('Please enter a valid email address.');
       }
 
-      const response = await axios.post(
-        'http://localhost:8080/api/auth/verify-reset-password',
-        { email, otp: otp.join('') },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-          }
-        }
-      );
+      const response = await axios.post('http://localhost:8080/api/forgot-password', { email });
 
       if (response.status === 200) {
-        console.log('OTP verified successfully');
-        navigate('/reset-password'); // Redirect to password reset page
+        console.log('OTP sent successfully');
+        setCountdown(10); // Set countdown to 10 seconds
+        localStorage.setItem('email', email);
+        navigate('/recovery-email-verify'); // Redirect to OTP verification page
       } else {
-        throw new Error('Failed to verify OTP');
+        throw new Error('Failed to send OTP');
       }
     } catch (error) {
-      console.error('Error verifying OTP:', error);
-      setError('Failed to verify OTP. Please try again.');
-    }
-  };
-
-  const handleResend = async () => {
-    try {
-      const email = localStorage.getItem('email');
-
-      if (!email) {
-        throw new Error('Email not found in localStorage');
-      }
-
-      const response = await axios.post('http://localhost:8080/api/auth/resend-reset-otp', { email });
-
-      console.log('OTP resent successfully:', response.data);
-      setCountdown(10); // Reset countdown to 10 seconds
-    } catch (error) {
-      console.error('Error resending OTP:', error);
-      setError('Failed to resend OTP. Please try again.');
-    }
-  };
-
-  const handleOtpChange = (index, value) => {
-    if (/^[0-9]$/.test(value) || value === '') {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-
-      if (value && index < 5) {
-        inputRefs.current[index + 1].focus();
-      }
+      console.error('Error sending OTP:', error);
+      setError('Failed to send OTP. Please try again.');
     }
   };
 
@@ -132,7 +94,7 @@ const ForgotPassword = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sx={{ mb:4 }}>
-                  <Button variant="contained" color="secondary" fullWidth size="large" onClick={handleVerify}>
+                  <Button variant="contained" color="secondary" fullWidth size="large" onClick={handleSendOtp}>
                   Continue
                   </Button>
                 </Grid>

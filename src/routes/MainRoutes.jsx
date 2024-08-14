@@ -3,6 +3,8 @@ import { lazy } from 'react';
 // project imports
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
+import { element } from 'prop-types';
+import { BasicTabs } from 'views/pages/courses/forms/NewCourse';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
@@ -26,6 +28,12 @@ const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
 
 
 const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
+const CourseInformationForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseInformationForm')));
+const DescriptionInformationForm=Loadable(lazy(() => import('views/pages/courses/forms/DescriptionInformationForm')));
+const CourseFormatForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseFormatForm')));
+const CourseCompletionForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseCompletionForm')));
+const CoursegroupForm=Loadable(lazy(() => import('views/pages/courses/forms/CoursegroupForm')));
+const CourseAppearanceForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseAppearanceForm')));
 
 
 
@@ -113,11 +121,17 @@ const MainRoutes = {
           element: <GridView />
         },
         {
-          path: 'new-course',
+          path: 'new-course/:tab?',
           element: <NewCourse />
-        }
+        },
+        {
+          path: ':slug/:tab',
+          element: <NewCourse />
+        },
       ]
     }
+    
+    
   ]
 };
 
