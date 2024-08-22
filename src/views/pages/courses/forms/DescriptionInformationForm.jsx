@@ -27,6 +27,7 @@ const DescriptionInformationForm = ({ goToNextTab, goToPreviousTab,courseId , co
   const quillRef = useRef(null);
   const [thumbnailUrl, setThumbnailUrl] = useState(courseData ? courseData.thumbnail : staticThumbnailUrl);
   const [videoUrl, setVideoUrl] = useState(courseData ? courseData.video : staticVideoUrl);
+  
   // Initialize Quill editor
   useEffect(() => {
     if (quillRef.current) {
@@ -44,43 +45,37 @@ const DescriptionInformationForm = ({ goToNextTab, goToPreviousTab,courseId , co
     }
   }, []);
 
-  // Handle file upload
-  const handleFileChange = async (event, type) => {
-    const file = event.target.files ? event.target.files[0] : null;
   
-    if (!file) {
-      console.error('No file selected');
-      return;
-    }
-  
+  const handleFileChange = (event, type) => {
+    const files = event.target.files;
     const formData = new FormData();
-    formData.append(type, file);  // Ensure the field name matches with backend
   
-    // Append additional form data if needed
-    formData.append('description', JSON.stringify({ /* additional data */ }));
-  
-    try {
-      const response = await axios.put(`http://localhost:8080/api/courses/${courseId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+    // Append files to FormData object with the correct field name
+    if (files.length > 0) {
+      Array.from(files).forEach(file => {
+        formData.append(type, file); // Use 'thumbnail' or 'video' based on the type
       });
-  
-      console.log('Upload response:', response.data);
-      const fileUrl = response.data.fileUrls[type];
-  
-      if (type === 'thumbnail') {
-        setThumbnailUrl(fileUrl);
-      } else if (type === 'video') {
-        setVideoUrl(fileUrl);
-      }
-    } catch (error) {
-      console.error('File upload error:', error.response ? error.response.data : error.message);
     }
+  
+    axios.put(`http://localhost:8080/api/courses/${courseId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    })
+    .then(response => {
+      console.log('File uploaded successfully', response.data);
+      if (type === 'thumbnail') {
+        setThumbnailUrl(response.data.thumbnailUrl); // Update thumbnail URL if applicable
+      } else if (type === 'video') {
+        setVideoUrl(response.data.videoUrl); // Update video URL if applicable
+      }
+    })
+    .catch(error => {
+      console.error('File upload error:', error);
+    });
   };
   
   
-
   const handleSubmit = async () => {
     if (!courseId) {
       console.error('Course ID is not defined');
@@ -116,8 +111,8 @@ const DescriptionInformationForm = ({ goToNextTab, goToPreviousTab,courseId , co
       console.log('Data successfully updated:', response.data);
       // Reset fields or handle success
       setDescription('');
-      setThumbnailUrl(staticThumbnailUrl);
-      setVideoUrl(staticVideoUrl);
+      setThumbnailUrl(thumbnailUrl);
+      setVideoUrl(videoUrl);
       goToNextTab(response.data.slug); // Pass the slug to goToNextTab
     } catch (error) {
       console.error('Error:', error.response ? error.response.data : error.message);

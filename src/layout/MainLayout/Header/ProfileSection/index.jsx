@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector ,useDispatch} from 'react-redux';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -26,15 +26,16 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import MainCard from 'ui-component/cards/MainCard';
 import Transitions from 'ui-component/extended/Transitions';
 import User1 from 'assets/images/users/user-round.svg';
-
+import { logout } from 'store/authActions';
 // assets
 import { IconLogout, IconSettings } from '@tabler/icons-react';
 
 // ==============================|| PROFILE MENU ||============================== //
 
-const ProfileSection = (logout) => {
+const ProfileSection = () => {
   const theme = useTheme();
   const customization = useSelector((state) => state.customization);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.User) || {}; // Ensure user is defined
@@ -49,7 +50,7 @@ const ProfileSection = (logout) => {
 
   const handleLogout = async () => {
 
-    localStorage.removeItem('accessToken'); // Clear token if used
+    dispatch(logout()); 
     navigate('/login'); // Redirect to login page
   };
 

@@ -25,6 +25,7 @@ const UserPermissions = Loadable(lazy(() => import('views/pages/users/UserPermis
 
 const ListView = Loadable(lazy(() => import('views/pages/courses/ListView')));
 const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
+const CourseDetails = Loadable(lazy(() => import('views/pages/courses/CourseDetails')));
 
 
 const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
@@ -119,6 +120,10 @@ const MainRoutes = {
         {
           path: 'course-grid',
           element: <GridView />
+        },
+        {
+          path: '/courses/:slug',
+          element: <CourseDetails />
         },
         {
           path: 'new-course/:tab?',

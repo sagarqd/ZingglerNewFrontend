@@ -24,6 +24,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import { setUser } from 'store/action';
 import { useDispatch } from 'react-redux';
+import { login } from 'store/authActions';
 
 const AuthLogin = ({ ...others }) => {
   const theme = useTheme();
@@ -48,7 +49,14 @@ const AuthLogin = ({ ...others }) => {
     try {
       const response = await axios.post('http://localhost:8080/api/auth/login', formData);
 
+      const email=response.data.email;
+      localStorage.setItem('email', email);
+      // Assuming the token is returned in response.data.token
+      const token = response.data.token;
+      dispatch(login(token)); 
+
       console.log('Login successful', response.data);
+
       navigate('/dashboard/default');
       setApiError(null); // Clear any previous error
       // Additional logic after successful login
@@ -61,10 +69,10 @@ const AuthLogin = ({ ...others }) => {
       }
     }
   };
- 
+
   const handleForgotPassword = async (values) => {
     try {
-      navigate('/forgot-password')
+      navigate('/forgot-password');
     } catch (error) {
       console.error('Error initiating password reset:', error);
       setApiError('Error initiating password reset. Please try again.');
@@ -105,7 +113,7 @@ const AuthLogin = ({ ...others }) => {
           setSubmitting(true);
           const formData = {
             email: values.email,
-            password: values.password,
+            password: values.password
           };
           fetchData(formData);
           setSubmitting(false);
@@ -170,7 +178,12 @@ const AuthLogin = ({ ...others }) => {
                 }
                 label="Remember me"
               />
-              <Typography variant="subtitle1" color="secondary" sx={{ textDecoration: 'none', cursor: 'pointer' }} onClick={handleForgotPassword}>
+              <Typography
+                variant="subtitle1"
+                color="secondary"
+                sx={{ textDecoration: 'none', cursor: 'pointer' }}
+                onClick={handleForgotPassword}
+              >
                 Forgot Password?
               </Typography>
             </Stack>
@@ -200,4 +213,3 @@ const AuthLogin = ({ ...others }) => {
 };
 
 export default AuthLogin;
-

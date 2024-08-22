@@ -133,7 +133,7 @@ const CourseCompletionForm = ({ goToNextTab,goToPreviousTab,courseId }) => {
            prev
           </Button>
           <Button variant="outlined" color="error" sx={{ px: 4 }} onClick={handleSubmit}>
-            save as a draft
+            save as draft
           </Button>
           <Button variant="contained" color="secondary" sx={{ px: 4 }} onClick={handleNext}>
             next

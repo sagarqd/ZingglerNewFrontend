@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -51,13 +51,15 @@ const options = [
   { text: 'Delete Course', icon: <DeleteIcon sx={{ marginRight: 1, verticalAlign: 'middle' }} fontSize="small" /> }
 ];
 
-const CourseCard = ({ course, handleClick }) => {
-  const { general, createdAt, updatedAt, teacherName, thumbnail, numStudents, avatar } = course;
+const CourseCard = ({ course, handleClick, setLoading, setCourses, courses }) => {
+  const { general, createdAt, updatedAt, teacherName, thumbnail, numStudents, avatar, _id, slug } = course;
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
-   const navigate=useNavigate();
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const navigate = useNavigate();
+
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
@@ -66,7 +68,10 @@ const CourseCard = ({ course, handleClick }) => {
     setSelectedIndex(index);
     setOpen(false);
     if (index === 1) handleEdit();
-    if (index === 2) handleDelete();
+    if (index === 2) handleDeleteClick();
+    if (index === 0) {
+      navigate(`/courses/${course.slug}`); // Navigate to the course detail page
+    }
   };
 
   const handleToggle = () => {
@@ -81,18 +86,28 @@ const CourseCard = ({ course, handleClick }) => {
   };
 
   const handleEdit = () => {
-    // Handle edit action
-    handleCloseMenu();
+    navigate(`/courses/${course.slug}/general`);
   };
 
-  const handleDelete = () => {
-    // Handle delete action
+  const handleDeleteClick = async () => {
+    setLoading(true); // Set loading to true when delete action starts
+    try {
+      await axios.delete(`http://localhost:8080/api/courses/${course._id}`);
+      setCourses((prevCourses) => prevCourses.filter(c => c._id !== course._id));
+    } catch (error) {
+      console.error('Error deleting course:', error);
+    } finally {
+      setLoading(false); // Always set loading to false after delete action
+    }
     handleCloseMenu();
   };
 
   // Validate dates
   const createdAtValid = moment(createdAt).isValid() ? moment(createdAt).fromNow() : 'Invalid date';
   const updatedAtValid = moment(updatedAt).isValid() ? moment(updatedAt).fromNow() : 'Invalid date';
+
+  const baseUrl = 'http://localhost:8080'; // Your backend URL
+  const thumbnailUrl = course.description.thumbnail.courseThumbnail ? `${baseUrl}${course.description.thumbnail.courseThumbnail}` : '';
 
   return (
     <Card sx={{ display: 'flex', width: '100%', padding: 2, marginBottom: 4, marginTop: 4, flexDirection: { xs: 'column', md: 'row' } }}>
@@ -108,10 +123,9 @@ const CourseCard = ({ course, handleClick }) => {
                 borderRadius: 2,
                 marginBottom: { xs: 2, md: 0 }
               }}
-              image={course.description.courseThumbnail}
-              alt={course.title}
+              image={thumbnailUrl}
+              alt={course.general.courseInformation.courseFullName || 'Course Image'}
             />
-
             <Box margin={3} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <Typography
                 component="div"
@@ -226,6 +240,7 @@ const CourseCard = ({ course, handleClick }) => {
   );
 };
 
+
 const ListView = () => {
   const [open, setOpen] = useState(false);
   const [courses, setCourses] = useState([]);
@@ -235,8 +250,7 @@ const ListView = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate=useNavigate();
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -262,7 +276,7 @@ const ListView = () => {
   }, []);
 
   const handleAddCourseClick = () => {
-    navigate('/courses/new-course')
+    navigate('/courses/new-course');
     setOpen(true);
     setFormValues({ title: '', description: '', thumbnail: '', videoUrl: '' });
   };
@@ -335,7 +349,13 @@ const ListView = () => {
               gap: { xs: 1, sm: 2 } // Adjust gap for small screens
             }}
           >
-            <Button size="medium" variant="outlined" startIcon={<AddCircleOutlineIcon />} sx={{ flexShrink: 0, whiteSpace: 'nowrap' }} onClick={handleAddCourseClick}>
+            <Button
+              size="medium"
+              variant="outlined"
+              startIcon={<AddCircleOutlineIcon />}
+              sx={{ flexShrink: 0, whiteSpace: 'nowrap' }}
+              onClick={handleAddCourseClick}
+            >
               Add New Course
             </Button>
             <OutlinedInput
@@ -364,7 +384,9 @@ const ListView = () => {
       </Paper>
 
       {!isEmpty(filteredCourses) ? (
-        filteredCourses.map((course) => <CourseCard key={course._id} course={course} />)
+        filteredCourses.map((course) => (
+          <CourseCard key={course._id} course={course} setLoading={setLoading} setCourses={setCourses} courses={courses} />
+        ))
       ) : (
         <Typography variant="h6" sx={{ textAlign: 'center', marginTop: 4 }}>
           No courses found

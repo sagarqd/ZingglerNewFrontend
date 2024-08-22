@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Container,
   Paper,
@@ -118,15 +118,7 @@ const GridView = () => {
   };
 
  const handleEditClick = (course) => {
-    setEditMode(true);
-    setSelectedCourse(course);
-    setFormValues({
-      title: course.title || '',
-      description: course.description || '',
-      thumbnail: course.thumbnail || '',
-      videoUrl: course.videoUrl || ''
-    });
-    setOpen(true);
+     navigate(`/courses/${course.slug}/general`);
   };
 
   const handleDeleteClick = async () => {
@@ -139,6 +131,8 @@ const GridView = () => {
     }
     handleCloseMenu();
   };
+
+
 
 
   return (
@@ -207,215 +201,168 @@ const GridView = () => {
       </Paper>
 
       <Grid container spacing={3}>
-        {filteredCourses.map((course) => {
-          // Extract and validate `updatedAt` field
-          const updatedAt = course.updatedAt; // Assuming `updatedAt` is a direct field in course
-          const formattedUpdatedAt = moment(updatedAt).isValid() ? moment(updatedAt).fromNow() : 'Invalid date';
-          const numStudents = course.numStudents || 0; // Set default value if numStudents is not defined
+  {courses.map((course) => {
+    // Extract and validate `updatedAt` field
+    const updatedAt = course.updatedAt; // Assuming `updatedAt` is a direct field in course
+    const formattedUpdatedAt = moment(updatedAt).isValid() ? moment(updatedAt).fromNow() : 'Invalid date';
+    const numStudents = course.numStudents || 0; // Set default value if numStudents is not defined
 
-          return (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={course._id}>
-              <Card>
-                <Box position="relative">
-                  <CardMedia component="img" height="200" image={course.description.courseThumbnail} alt={course.title} />
-                  <Box
-                    position="absolute"
-                    top={12}
-                    left={20}
-                    right={20}
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    borderRadius="4px"
-                    padding="2px 4px"
-                  >
-                    <Typography
-                      variant="body2"
-                      color="white"
-                      sx={{
-                        padding: '6px 16px',
-                        bgcolor: 'rgba(0, 0, 0, 0.5)',
-                        borderRadius: '4px'
-                      }}
-                    >
-                      3 Hours
-                    </Typography>
+    // Compute thumbnail URL for each course
+    const baseUrl = 'http://localhost:8080'; // Your backend URL
+    const thumbnailUrl = course.description?.thumbnail?.courseThumbnail ? `${baseUrl}${course.description.thumbnail.courseThumbnail}` : '';
 
-                    <IconButton onClick={(event) => handleClick(event, course)} sx={{ color: 'secondary' }}>
-                      <MoreVertIcon />
-                    </IconButton>
-                    <Menu
-                      anchorEl={anchorEl}
-                      open={Boolean(anchorEl)}
-                      onClose={handleCloseMenu}
-                      PaperProps={{
-                        sx: {
-                          width: '200px',
-                          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }}
-                    >
-                      <MenuItem onClick={handleEditClick}>
-                        <EditIcon sx={{ marginRight: 1 }} />
-                        Edit
-                      </MenuItem>
-                      <MenuItem onClick={handleDeleteClick}>
-                        <DeleteIcon sx={{ marginRight: 1 }} />
-                        Delete
-                      </MenuItem>
-                    </Menu>
-                  </Box>
-                </Box>
-                <Box position="relative" display="flex" alignItems="center" justifyContent="center" mt={-4} mb={1} sx={{ height: 56 }}>
-                  <Badge
-                    overlap="circular"
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                    badgeContent={<CheckCircleIcon sx={{ fontSize: 14, color: '#fff' }} />}
-                    sx={{
-                      position: 'absolute',
-                      right: 40,
-                      bottom: 0,
-                      '& .MuiBadge-badge': {
-                        padding: '0',
-                        border: '1px solid #fff',
-                        backgroundColor: '#44b700',
-                        borderRadius: '50%'
-                      }
-                    }}
-                  >
-                    <Avatar alt="User 1" src="/assets/profile-CXNf4CWk.png" sx={{ width: 56, height: 56 }} />
-                  </Badge>
-                </Box>
+    return (
+      <Grid item xs={12} sm={6} md={4} lg={3} key={course._id}>
+        <Card>
+          <Box position="relative">
+            <CardMedia
+              component="img"
+              height="200"
+              image={thumbnailUrl}
+              alt={course.title}
+              onError={(e) => e.target.src = 'default-thumbnail.png'} // Handle errors in loading images
+            />
+            <Box
+              position="absolute"
+              top={12}
+              left={20}
+              right={20}
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              borderRadius="4px"
+              padding="2px 4px"
+            >
+              <Typography
+                variant="body2"
+                color="white"
+                sx={{
+                  padding: '6px 16px',
+                  bgcolor: 'rgba(0, 0, 0, 0.5)',
+                  borderRadius: '4px'
+                }}
+              >
+                3 Hours
+              </Typography>
 
-                <CardContent sx={{ paddingTop: 0 }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      fontSize: '14px',
-                      fontFamily: 'Poppins, sans-serif'
-                    }}
-                  >
-                    {course.general.courseInformation.teacherName}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{
-                      fontSize: '16px',
-                      fontFamily: 'Poppins, sans-serif',
-                      mt: 1
-                    }}
-                  >
-                    {course.general.courseInformation.courseFullName}
-                  </Typography>
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ mt: 1, fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}
-                  >
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', fontFamily: 'Poppins, sans-serif' }}>
-                      <span style={{ fontWeight: 'bold' }}>{numStudents}</span>+ Enrolled
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary">
-                      {formattedUpdatedAt}
-                    </Typography>
-                  </Box>
-                  <Box display="flex" alignItems="center" justifyContent={'space-between'} sx={{ mt: 2 }}>
-                    <AvatarGroup
-                      max={4}
-                      sx={{
-                        '& .MuiAvatar-root': {
-                          width: 24,
-                          height: 24,
-                          fontSize: '0.75rem'
-                        }
-                      }}
-                    >
-                      <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-                      <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-                      <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
-                      <Avatar alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
-                      <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
-                    </AvatarGroup>
-                    <Button variant="contained" color="secondary" href={course.videoUrl} target="_blank">
-                      View Course
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
-
-      <Modal open={open} onClose={handleClose} closeAfterTransition BackdropComponent={Backdrop} BackdropProps={{ timeout: 500 }}>
-        <Fade in={open}>
-          <Box sx={modalStyle}>
-            <Typography variant="h6" component="h2">
-              Add New Course
-            </Typography>
-            <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
-                label="Title"
-                margin="normal"
-                variant="outlined"
-                name="title"
-                value={formValues.title}
-                onChange={handleChange}
-              />
-              <TextField
-                fullWidth
-                label="Description"
-                margin="normal"
-                variant="outlined"
-                name="description"
-                value={formValues.description}
-                onChange={handleChange}
-              />
-              <TextField
-                fullWidth
-                label="Thumbnail URL"
-                margin="normal"
-                variant="outlined"
-                name="thumbnail"
-                value={formValues.thumbnail}
-                onChange={handleChange}
-              />
-              <TextField
-                fullWidth
-                label="Video URL"
-                margin="normal"
-                variant="outlined"
-                name="videoUrl"
-                value={formValues.videoUrl}
-                onChange={handleChange}
-              />
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button type="submit" variant="contained" color="primary">
-                  Save
-                </Button>
-              </Box>
+              <IconButton onClick={(event) => handleClick(event, course)} sx={{ color: 'secondary' }}>
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleCloseMenu}
+                PaperProps={{
+                  sx: {
+                    width: '200px',
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)'
+                  }
+                }}
+              >
+                <MenuItem onClick={() => handleEditClick(course)}>
+                  <EditIcon sx={{ marginRight: 1 }} />
+                  Edit
+                </MenuItem>
+                <MenuItem onClick={handleDeleteClick}>
+                  <DeleteIcon sx={{ marginRight: 1 }} />
+                  Delete
+                </MenuItem>
+              </Menu>
             </Box>
           </Box>
-        </Fade>
-      </Modal>
+          <Box position="relative" display="flex" alignItems="center" justifyContent="center" mt={-4} mb={1} sx={{ height: 56 }}>
+            <Badge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              badgeContent={<CheckCircleIcon sx={{ fontSize: 14, color: '#fff' }} />}
+              sx={{
+                position: 'absolute',
+                right: 40,
+                bottom: 0,
+                '& .MuiBadge-badge': {
+                  padding: '0',
+                  border: '1px solid #fff',
+                  backgroundColor: '#44b700',
+                  borderRadius: '50%'
+                }
+              }}
+            >
+              <Avatar alt="User 1" src="/assets/profile-CXNf4CWk.png" sx={{ width: 56, height: 56 }} />
+            </Badge>
+          </Box>
+
+          <CardContent sx={{ paddingTop: 0 }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                fontSize: '14px',
+                fontFamily: 'Poppins, sans-serif'
+              }}
+            >
+              {course.general?.courseInformation?.teacherName}
+            </Typography>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{
+                fontSize: '16px',
+                fontFamily: 'Poppins, sans-serif',
+                mt: 1
+              }}
+            >
+              {course.general?.courseInformation?.courseFullName}
+            </Typography>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mt: 1, fontFamily: 'Poppins, sans-serif', fontSize: '12px' }}
+            >
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', fontFamily: 'Poppins, sans-serif' }}>
+                <span style={{ fontWeight: 'bold' }}>{numStudents}</span>+ Enrolled
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary">
+                {formattedUpdatedAt}
+              </Typography>
+            </Box>
+            <Box display="flex" alignItems="center" justifyContent={'space-between'} sx={{ mt: 2 }}>
+              <AvatarGroup
+                max={4}
+                sx={{
+                  '& .MuiAvatar-root': {
+                    width: 24,
+                    height: 24,
+                    fontSize: '0.75rem'
+                  }
+                }}
+              >
+                <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+                <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
+                <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
+                <Avatar alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
+                <Avatar alt="Trevor Henderson" src="/static/images/avatar/5.jpg" />
+              </AvatarGroup>
+              <Button
+              variant="contained"
+              color="secondary"
+              component={Link}
+              to={`/courses/${course.slug}`} // Use course slug or ID in the URL
+            >
+              View Course
+            </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+    );
+  })}
+</Grid>
+
+
     </Container>
   );
-};
-
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4
 };
 
 export default GridView;
