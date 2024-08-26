@@ -2,60 +2,38 @@ import { lazy } from 'react';
 
 // project imports
 import MainLayout from 'layout/MainLayout';
-import Loadable from 'ui-component/Loadable';
 import { element } from 'prop-types';
 import { BasicTabs } from 'views/pages/courses/forms/NewCourse';
 
-// dashboard routing
-const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
-
-const AuthRegister = Loadable(lazy(() => import('views/pages/authentication3/Register')));
-
-
-// utilities routing
-const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
-const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
-const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
-
-// users routing
-const Profile = Loadable(lazy(() => import('views/pages/users/Profile')));
-const UserList = Loadable(lazy(() => import('views/pages/users/UserList')));
-const UserGroup = Loadable(lazy(() => import('views/pages/users/UserGroup')));
-const UserPermissions = Loadable(lazy(() => import('views/pages/users/UserPermissions')));
-const ProfileEdit = Loadable(lazy(() => import('views/pages/users/ProfileEdit')));
-
-
-const ListView = Loadable(lazy(() => import('views/pages/courses/ListView')));
-const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
-const CourseDetails = Loadable(lazy(() => import('views/pages/courses/CourseDetails')));
-
-const CourseView = Loadable(lazy(() => import('views/pages/courses/CourseView')));
-const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
-const CourseInformationForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseInformationForm')));
-const DescriptionInformationForm=Loadable(lazy(() => import('views/pages/courses/forms/DescriptionInformationForm')));
-const CourseFormatForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseFormatForm')));
-const CourseCompletionForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseCompletionForm')));
-const CoursegroupForm=Loadable(lazy(() => import('views/pages/courses/forms/CoursegroupForm')));
-const CourseAppearanceForm = Loadable(lazy(() => import('views/pages/courses/forms/CourseAppearanceForm')));
-
-// meetings routing
-const NewMeeting = Loadable(lazy(() => import('views/pages/meetings/NewMeeting')));
-const MeetingHistory = Loadable(lazy(() => import('views/pages/meetings/MeetingHistory')));
-const RoomPage = Loadable(lazy(() => import('views/pages/meetings/RoomPage')));
-const MeetingLayout = Loadable(lazy(() => import('views/pages/meetings/MeetingLayout')));
-
-const ColorTablet = Loadable(lazy(() => import('webgl/index')));
-
-
-
-
-
-// sample page routing
-const SamplePage = Loadable(lazy(() => import('views/sample-page')));
-
-// ==============================|| MAIN ROUTING ||============================== //
-
-// ==============================|| MAIN ROUTING ||============================== //
+// Import all components directly
+import DashboardDefault from 'views/dashboard';
+import AuthRegister from 'views/pages/authentication3/Register';
+import UtilsTypography from 'views/utilities/Typography';
+import UtilsColor from 'views/utilities/Color';
+import UtilsShadow from 'views/utilities/Shadow';
+import Profile from 'views/pages/users/Profile';
+import UserList from 'views/pages/users/UserList';
+import UserGroup from 'views/pages/users/UserGroup';
+import UserPermissions from 'views/pages/users/UserPermissions';
+import ProfileEdit from 'views/pages/users/ProfileEdit';
+import ListView from 'views/pages/courses/ListView';
+import GridView from 'views/pages/courses/GridView';
+import CourseDetails from 'views/pages/courses/CourseDetails';
+import CourseView from 'views/pages/courses/CourseView';
+import NewCourse from 'views/pages/courses/forms/NewCourse';
+import CourseInformationForm from 'views/pages/courses/forms/CourseInformationForm';
+import DescriptionInformationForm from 'views/pages/courses/forms/DescriptionInformationForm';
+import CourseFormatForm from 'views/pages/courses/forms/CourseFormatForm';
+import CourseCompletionForm from 'views/pages/courses/forms/CourseCompletionForm';
+import CoursegroupForm from 'views/pages/courses/forms/CoursegroupForm';
+import CourseAppearanceForm from 'views/pages/courses/forms/CourseAppearanceForm';
+import NewMeeting from 'views/pages/meetings/NewMeeting';
+import MeetingHistory from 'views/pages/meetings/MeetingHistory';
+import RoomPage from 'views/pages/meetings/RoomPage';
+import MeetingLayout from 'views/pages/meetings/MeetingLayout';
+import ColorTablet from 'webgl/index';
+import Whiteboard from 'views/pages/whiteboard/Whiteboard';
+import SamplePage from 'views/sample-page';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -115,7 +93,7 @@ const MainRoutes = {
         },
         {
           path: 'profile/edit',
-          element: <ProfileEdit /> // Add this route
+          element: <ProfileEdit />
         },
         {
           path: 'user-permissions',
@@ -157,21 +135,21 @@ const MainRoutes = {
       path: 'meetings',
       element: <MainLayout />,
       children: [
-          {
-              path: 'new-meeting',
-              element: <NewMeeting />
-          },
-          {
-              path: 'meeting-history',
-              element: <MeetingHistory />
-          },
-          {
-              path: ':roomId', // new route
-              element: <RoomPage />
-          },
-          {
-            path: 'meeting-layout',
-            element: <MeetingLayout />
+        {
+          path: 'new-meeting',
+          element: <NewMeeting />
+        },
+        {
+          path: 'meeting-history',
+          element: <MeetingHistory />
+        },
+        {
+          path: ':roomId',
+          element: <RoomPage />
+        },
+        {
+          path: 'meeting-layout',
+          element: <MeetingLayout />
         }
       ]
     },
@@ -184,10 +162,18 @@ const MainRoutes = {
           element: <ColorTablet />
         }
       ]
-    }
+    },
+    {
+      path: 'tools',
+      element: <MainLayout />,
+      children: [
+        {
+          path: 'whiteboard',
+          element: <Whiteboard />
+        }
+      ]
+    },
   ]
 };
 
 export default MainRoutes;
-
-

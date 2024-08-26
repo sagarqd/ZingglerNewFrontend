@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, IconButton, Typography, Paper, Grid, Divider, Button, Menu, MenuItem, TextField } from '@mui/material';
 import { PersonAdd } from '@mui/icons-material';
-import peer from '../../../service/peer';
+import peer from '../../../context/Peer';
 import { useSocket } from '../../../context/SocketProvider';
 
 import {

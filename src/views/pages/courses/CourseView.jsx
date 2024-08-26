@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import InteractiveQuestions from './InteractiveQuestions';
 import CourseDetails from './CourseDetails';
 
 const ParentComponent = () => {

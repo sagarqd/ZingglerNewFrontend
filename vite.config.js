@@ -1,15 +1,13 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import jsconfigPaths from 'vite-jsconfig-paths';
-
-// ----------------------------------------------------------------------
 
 export default defineConfig({
   plugins: [react(), jsconfigPaths()],
   base: '', // Use an empty string for the base URL
   define: {
-    global: 'window'
+    global: 'window',
+    'process.env': {}, // Add this line to define process.env
   },
   resolve: {
     // Uncomment and update alias if needed
