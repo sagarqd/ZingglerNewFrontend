@@ -8,7 +8,6 @@ import { BasicTabs } from 'views/pages/courses/forms/NewCourse';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
-const StudentDashboardOverview  = Loadable(lazy(() => import('views/student-dashboard/Overview')));
 
 const AuthRegister = Loadable(lazy(() => import('views/pages/authentication3/Register')));
 
@@ -30,8 +29,6 @@ const ListView = Loadable(lazy(() => import('views/pages/courses/ListView')));
 const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
 const CourseDetails = Loadable(lazy(() => import('views/pages/courses/CourseDetails')));
 
-const AddInteractives = Loadable(lazy(() => import('views/pages/courses/AddInteractives')));
-const InteractiveQuestions = Loadable(lazy(() => import('views/pages/courses/InteractiveQuestions')));
 const CourseView = Loadable(lazy(() => import('views/pages/courses/CourseView')));
 const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
 const CourseInformationForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseInformationForm')));
@@ -76,16 +73,6 @@ const MainRoutes = {
         {
           path: 'default',
           element: <DashboardDefault />
-        }
-      ]
-    },
-    {
-      path: 'student-dashboard',
-      element: <MainLayout />,
-      children: [
-        {
-          path: 'overview',
-          element: <StudentDashboardOverview />
         }
       ]
     },
@@ -159,14 +146,6 @@ const MainRoutes = {
         {
           path: ':slug/:tab',
           element: <NewCourse />
-        },
-        {
-          path: 'add-interactives',
-          element: <AddInteractives />
-        },
-        {
-          path: 'interactive-questions',
-          element: <InteractiveQuestions />
         },
         {
           path: 'view-course',
