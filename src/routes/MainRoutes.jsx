@@ -8,6 +8,7 @@ import { BasicTabs } from 'views/pages/courses/forms/NewCourse';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
+const StudentDashboardOverview  = Loadable(lazy(() => import('views/student-dashboard/Overview')));
 
 const AuthRegister = Loadable(lazy(() => import('views/pages/authentication3/Register')));
 
@@ -22,19 +23,31 @@ const Profile = Loadable(lazy(() => import('views/pages/users/Profile')));
 const UserList = Loadable(lazy(() => import('views/pages/users/UserList')));
 const UserGroup = Loadable(lazy(() => import('views/pages/users/UserGroup')));
 const UserPermissions = Loadable(lazy(() => import('views/pages/users/UserPermissions')));
+const ProfileEdit = Loadable(lazy(() => import('views/pages/users/ProfileEdit')));
+
 
 const ListView = Loadable(lazy(() => import('views/pages/courses/ListView')));
 const GridView = Loadable(lazy(() => import('views/pages/courses/GridView')));
 const CourseDetails = Loadable(lazy(() => import('views/pages/courses/CourseDetails')));
 
-
+const AddInteractives = Loadable(lazy(() => import('views/pages/courses/AddInteractives')));
+const InteractiveQuestions = Loadable(lazy(() => import('views/pages/courses/InteractiveQuestions')));
+const CourseView = Loadable(lazy(() => import('views/pages/courses/CourseView')));
 const NewCourse = Loadable(lazy(() => import('views/pages/courses/forms/NewCourse')));
 const CourseInformationForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseInformationForm')));
 const DescriptionInformationForm=Loadable(lazy(() => import('views/pages/courses/forms/DescriptionInformationForm')));
 const CourseFormatForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseFormatForm')));
 const CourseCompletionForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseCompletionForm')));
 const CoursegroupForm=Loadable(lazy(() => import('views/pages/courses/forms/CoursegroupForm')));
-const CourseAppearanceForm=Loadable(lazy(() => import('views/pages/courses/forms/CourseAppearanceForm')));
+const CourseAppearanceForm = Loadable(lazy(() => import('views/pages/courses/forms/CourseAppearanceForm')));
+
+// meetings routing
+const NewMeeting = Loadable(lazy(() => import('views/pages/meetings/NewMeeting')));
+const MeetingHistory = Loadable(lazy(() => import('views/pages/meetings/MeetingHistory')));
+const RoomPage = Loadable(lazy(() => import('views/pages/meetings/RoomPage')));
+const MeetingLayout = Loadable(lazy(() => import('views/pages/meetings/MeetingLayout')));
+
+const ColorTablet = Loadable(lazy(() => import('webgl/index')));
 
 
 
@@ -63,6 +76,16 @@ const MainRoutes = {
         {
           path: 'default',
           element: <DashboardDefault />
+        }
+      ]
+    },
+    {
+      path: 'student-dashboard',
+      element: <MainLayout />,
+      children: [
+        {
+          path: 'overview',
+          element: <StudentDashboardOverview />
         }
       ]
     },
@@ -104,6 +127,10 @@ const MainRoutes = {
           element: <Profile />
         },
         {
+          path: 'profile/edit',
+          element: <ProfileEdit /> // Add this route
+        },
+        {
           path: 'user-permissions',
           element: <UserPermissions />
         }
@@ -133,10 +160,52 @@ const MainRoutes = {
           path: ':slug/:tab',
           element: <NewCourse />
         },
+        {
+          path: 'add-interactives',
+          element: <AddInteractives />
+        },
+        {
+          path: 'interactive-questions',
+          element: <InteractiveQuestions />
+        },
+        {
+          path: 'view-course',
+          element: <CourseView />
+        },
+      ]
+    },
+    {
+      path: 'meetings',
+      element: <MainLayout />,
+      children: [
+          {
+              path: 'new-meeting',
+              element: <NewMeeting />
+          },
+          {
+              path: 'meeting-history',
+              element: <MeetingHistory />
+          },
+          {
+              path: ':roomId', // new route
+              element: <RoomPage />
+          },
+          {
+            path: 'meeting-layout',
+            element: <MeetingLayout />
+        }
+      ]
+    },
+    {
+      path: 'games',
+      element: <MainLayout />,
+      children: [
+        {
+          path: 'color-tablet',
+          element: <ColorTablet />
+        }
       ]
     }
-    
-    
   ]
 };
 

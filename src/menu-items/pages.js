@@ -1,5 +1,5 @@
 // assets
-import { IconKey, IconUsers, IconUser, IconBook, IconChalkboard, IconBuilding, IconCash, IconCalendar, IconListDetails } from '@tabler/icons-react';
+import { IconKey, IconUsers, IconUser, IconBook, IconChalkboard, IconBuilding, IconCash, IconCalendar, IconDeviceGamepad2, IconCalendarStats } from '@tabler/icons-react';
 
 // constant
 const icons = {
@@ -11,7 +11,9 @@ const icons = {
   IconUser,        // Placeholder for students
   IconCash,        // Placeholder for payments
   IconCalendar,    // Placeholder for attendance
-  IconBuilding     // Placeholder for departments
+  IconBuilding,
+  IconDeviceGamepad2,
+  IconCalendarStats
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
@@ -175,6 +177,40 @@ const pages = {
           title: 'Department Profile',
           type: 'item',
           url: '/departments/department-profile',
+        }
+      ]
+    },
+    {
+      id: 'meetings',
+      title: 'Meetings',
+      type: 'collapse',
+      icon: icons.IconCalendarStats,
+      children: [
+        {
+          id: 'new-meeting',
+          title: 'New Meeting',
+          type: 'item',
+          url: '/meetings/new-meeting',
+        },
+        {
+          id: 'meeting-history',
+          title: 'Meeting History',
+          type: 'item',
+          url: '/meetings/meeting-history',
+        }
+      ]
+    },
+    {
+      id: 'games',
+      title: 'Games',
+      type: 'collapse',
+      icon: icons.IconDeviceGamepad2,
+      children: [
+        {
+          id: 'color-tablet',
+          title: 'Color Tablet',
+          type: 'item',
+          url: '/games/color-tablet'
         }
       ]
     }
