@@ -1,184 +1,272 @@
-import React, { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  TextField,
-  MenuItem,
-  Button,
-  Grid,
-  Stack
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, TextField, MenuItem, Button, Grid, Stack, InputLabel, Select, FormControl } from '@mui/material';
+import { EditorState, convertToRaw } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'; // Import the Draft editor stylesheet
 
-const CourseSectionForm = ({
-  courseId,
-  sectionId,
-  handleSave,
-  onPrev,
-  onNext,
-  isPrevDisabled,
-  isNextDisabled,
-}) => {
-  const [sectionTitle, setSectionTitle] = useState('');
-  const [contentType, setContentType] = useState('Blog');
-  const [contentUrl, setContentUrl] = useState('');
-  const [uploadedFile, setUploadedFile] = useState(null);
+const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
+    const [sections, setSections] = useState([]);
+    const [blogCategory, setBlogCategory] = useState('');
 
-  const handleContentTypeChange = (event) => {
-    setContentType(event.target.value);
-    setContentUrl('');
-    setUploadedFile(null);
-  };
+    useEffect(() => {
+        const fetchCourseData = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/coursesById/${courseId}`, {
+                    method: 'GET'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const fetchedNoOfSection = data.format?.noOfSection || 0;
+                    setSections(
+                        Array.from({ length: fetchedNoOfSection }, () => ({
+                            sectionTitle: '',
+                            contentType: '',
+                            contentUrl: '',
+                            youtubeUrl: '',
+                            uploadedFile: null,
+                            gameLink: '',
+                            imageFile: null,
+                            editorState: EditorState.createEmpty()
+                        }))
+                    );
+                } else {
+                    console.error('Failed to fetch course data');
+                }
+            } catch (error) {
+                console.error('Error fetching course data:', error);
+            }
+        };
 
-  const handleFileChange = (event) => {
-    setUploadedFile(event.target.files[0]);
-  };
+        if (courseId) {
+            fetchCourseData();
+        }
+    }, [courseId]);
 
-  const handleSubmit = async () => {
-    const formData = new FormData();
-    formData.append('sectionTitle', sectionTitle);
-    formData.append('contentType', contentType);
-    if (contentType === 'Uploaded Video' && uploadedFile) {
-      formData.append('uploadedFile', uploadedFile);
-    } else {
-      formData.append('contentUrl', contentUrl);
-    }
+    const handleSectionChange = (index, field, value) => {
+        const newSections = [...sections];
+        newSections[index] = { ...newSections[index], [field]: value };
+        setSections(newSections);
+    };
 
-    try {
-      const response = await fetch(`http://localhost:8080/api/courses/${courseId}/sections/${sectionId}`, {
-        method: 'PUT',
-        body: formData,
-      });
+    const handleContentTypeChange = (index, event) => {
+        const value = event.target.value;
+        // Reset fields based on selected content type
+        handleSectionChange(index, 'contentType', value);
+        handleSectionChange(index, 'contentUrl', '');
+        handleSectionChange(index, 'youtubeUrl', '');
+        handleSectionChange(index, 'uploadedFile', null);
+        handleSectionChange(index, 'gameLink', '');
+        handleSectionChange(index, 'imageFile', null);
+        handleSectionChange(index, 'editorState', EditorState.createEmpty());
+        if (value === 'Blog') {
+            // Optionally reset or set blog-specific fields here
+            setBlogCategory('');
+        }
+    };
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+    const handleBlogCategoryChange = (event) => {
+        setBlogCategory(event.target.value);
+    };
 
-      const data = await response.json();
-      handleSave(data); // Handle post-save logic
-    } catch (error) {
-      console.error('Error saving section details:', error);
-    }
-  };
+    const handleFileChange = (index, event) => {
+        handleSectionChange(index, 'uploadedFile', event.target.files[0]);
+    };
 
-  return (
-    <Card variant="outlined" sx={{ width: '100%' }}>
-      <CardHeader
-        title="Section Details"
-        sx={{ borderBottom: '1px solid', borderColor: 'divider' }}
-      />
-      <CardContent>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Section Title"
-              variant="outlined"
-              value={sectionTitle}
-              onChange={(e) => setSectionTitle(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
+    const handleImageChange = (index, event) => {
+        handleSectionChange(index, 'imageFile', event.target.files[0]);
+    };
 
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Content Type"
-              variant="outlined"
-              select
-              value={contentType}
-              onChange={handleContentTypeChange}
-              InputLabelProps={{ shrink: true }}
-            >
-              <MenuItem value="Blog">Blog</MenuItem>
-              <MenuItem value="YouTube Video">YouTube Video</MenuItem>
-              <MenuItem value="Uploaded Video">Uploaded Video</MenuItem>
-              <MenuItem value="Interactive Video">Interactive Video</MenuItem>
-            </TextField>
-          </Grid>
+    const handleNext = async () => {
+        if (!courseId) {
+            console.error('Course ID is not defined');
+            return;
+        }
 
-          {contentType === 'YouTube Video' && (
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="YouTube URL"
-                variant="outlined"
-                value={contentUrl}
-                onChange={(e) => setContentUrl(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-          )}
+        try {
+            for (let i = 0; i < sections.length; i++) {
+                const formData = new FormData();
+                const section = sections[i];
 
-          {contentType === 'Blog' && (
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Blog URL"
-                variant="outlined"
-                value={contentUrl}
-                onChange={(e) => setContentUrl(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-          )}
+                formData.append('sectionTitle', section.sectionTitle);
+                formData.append('contentType', section.contentType);
 
-          {contentType === 'Uploaded Video' && (
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                component="label"
-              >
-                Upload Video
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
-                  accept="video/*"
-                />
-              </Button>
-              {uploadedFile && <p>{uploadedFile.name}</p>}
-            </Grid>
-          )}
+                if (section.contentType === 'Blog') {
+                    const content = JSON.stringify(convertToRaw(section.editorState.getCurrentContent()));
+                    formData.append('blogContent', content);
+                    formData.append('blogCategory', blogCategory); // Include blog category
+                } else if (section.contentType === 'URL') {
+                    formData.append('contentUrl', section.contentUrl);
+                } else if (section.contentType === 'YouTube Video') {
+                    formData.append('youtubeUrl', section.youtubeUrl);
+                } else if (section.contentType === 'Uploaded Video') {
+                    if (section.uploadedFile) {
+                        formData.append('uploadedFile', section.uploadedFile);
+                    }
+                } else if (section.contentType === 'Image') {
+                    if (section.imageFile) {
+                        formData.append('imageFile', section.imageFile);
+                    }
+                } else if (section.contentType === 'Games') {
+                    formData.append('gameLink', section.gameLink);
+                }
 
-          {contentType === 'Interactive Video' && (
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Interactive Video URL"
-                variant="outlined"
-                value={contentUrl}
-                onChange={(e) => setContentUrl(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-          )}
-        </Grid>
-      </CardContent>
+                const response = await fetch(`http://localhost:8080/api/courses/${courseId}/sections`, {
+                    method: 'POST',
+                    body: formData
+                });
 
-      <Stack direction="row" spacing={2} sx={{ mt: 3, justifyContent: 'flex-end', p: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={onPrev}
-          disabled={isPrevDisabled}
-        >
-          Previous
-        </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Save
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-          disabled={isNextDisabled}
-        >
-          Next
-        </Button>
-      </Stack>
-    </Card>
-  );
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                console.log('Section data:', data);
+            }
+
+            goToNextTab();
+        } catch (error) {
+            console.error('Error saving course sections:', error);
+        }
+    };
+
+    const handlePrevious = () => {
+        goToPreviousTab();
+    };
+
+    return (
+        <>
+            {sections.length === 0 ? (
+                <p>No sections available</p>
+            ) : (
+                sections.map((section, index) => (
+                    <Card variant="outlined" sx={{ width: '100%', mb: 3 }} key={index}>
+                        <CardHeader title={`Section ${index + 1}`} />
+                        <CardContent>
+                            <form noValidate autoComplete="off">
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            fullWidth
+                                            label="Section Title"
+                                            variant="outlined"
+                                            value={section.sectionTitle}
+                                            onChange={(e) => handleSectionChange(index, 'sectionTitle', e.target.value)}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <FormControl fullWidth variant="outlined">
+                                            <InputLabel>Content Type</InputLabel>
+                                            <Select
+                                                value={section.contentType}
+                                                onChange={(e) => handleContentTypeChange(index, e)}
+                                                label="Content Type"
+                                            >
+                                                <MenuItem value="">Select Content Type</MenuItem>
+                                                <MenuItem value="Blog">Blog</MenuItem>
+                                                <MenuItem value="URL">URL</MenuItem>
+                                                <MenuItem value="YouTube Video">YouTube Video</MenuItem>
+                                                <MenuItem value="Uploaded Video">Uploaded Video</MenuItem>
+                                                <MenuItem value="Games">Games</MenuItem>
+                                                <MenuItem value="Image">Image</MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                    {section.contentType === 'Blog' && (
+                                        <>
+                                            <Grid item xs={12}>
+                                                <Editor
+                                                    editorState={section.editorState}
+                                                    onEditorStateChange={(editorState) =>
+                                                        handleSectionChange(index, 'editorState', editorState)
+                                                    }
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} md={6}>
+                                                <FormControl fullWidth variant="outlined">
+                                                    <InputLabel>Blog Category</InputLabel>
+                                                    <Select
+                                                        value={blogCategory}
+                                                        onChange={handleBlogCategoryChange}
+                                                        label="Blog Category"
+                                                    >
+                                                        <MenuItem value="">Select Blog Category</MenuItem>
+                                                        <MenuItem value="Technology">Technology</MenuItem>
+                                                        <MenuItem value="Education">Education</MenuItem>
+                                                        <MenuItem value="Entertainment">Entertainment</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+                                            </Grid>
+                                        </>
+                                    )}
+                                    {section.contentType === 'URL' && (
+                                        <Grid item xs={12} md={6}>
+                                            <TextField
+                                                fullWidth
+                                                label="Content URL"
+                                                variant="outlined"
+                                                value={section.contentUrl}
+                                                onChange={(e) => handleSectionChange(index, 'contentUrl', e.target.value)}
+                                            />
+                                        </Grid>
+                                    )}
+                                    {section.contentType === 'YouTube Video' && (
+                                        <Grid item xs={12} md={6}>
+                                            <TextField
+                                                fullWidth
+                                                label="YouTube URL"
+                                                variant="outlined"
+                                                value={section.youtubeUrl}
+                                                onChange={(e) => handleSectionChange(index, 'youtubeUrl', e.target.value)}
+                                            />
+                                        </Grid>
+                                    )}
+                                    {section.contentType === 'Uploaded Video' && (
+                                        <Grid item xs={12} md={6}>
+                                            <input
+                                                accept="video/*"
+                                                id={`upload-video-${index}`}
+                                                type="file"
+                                                onChange={(e) => handleFileChange(index, e)}
+                                            />
+                                        </Grid>
+                                    )}
+                                    {section.contentType === 'Image' && (
+                                        <Grid item xs={12} md={6}>
+                                            <input
+                                                accept="image/*"
+                                                id={`upload-image-${index}`}
+                                                type="file"
+                                                onChange={(e) => handleImageChange(index, e)}
+                                            />
+                                        </Grid>
+                                    )}
+                                    {section.contentType === 'Games' && (
+                                        <Grid item xs={12} md={6}>
+                                            <TextField
+                                                fullWidth
+                                                label="Game Link"
+                                                variant="outlined"
+                                                value={section.gameLink}
+                                                onChange={(e) => handleSectionChange(index, 'gameLink', e.target.value)}
+                                            />
+                                        </Grid>
+                                    )}
+                                </Grid>
+                            </form>
+                        </CardContent>
+                    </Card>
+                ))
+            )}
+            <Stack direction="row" spacing={2} sx={{ mt: 6, justifyContent: 'flex-end' }}>
+                <Button variant="outlined" color="error" sx={{ px: 4 }} onClick={handlePrevious}>
+                    Prev
+                </Button>
+                <Button variant="contained" color="secondary" sx={{ px: 4 }} onClick={handleNext}>
+                    Next
+                </Button>
+            </Stack>
+        </>
+    );
 };
 
 export default CourseSectionForm;

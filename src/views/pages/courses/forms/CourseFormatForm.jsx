@@ -27,24 +27,24 @@ const CourseFormatForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
       console.error('Course ID is not defined');
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('hiddenSection', hiddenSection);
     formData.append('courseLayout', courseLayout);
     formData.append('courseSection', courseSection);
     formData.append('noOfSection', noOfSection);
     formData.append('typeOfActivity', typeOfActivity);
-  
+
     try {
       const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
         method: 'PUT',
-        body: formData // No need to set Content-Type header manually
+        body: formData
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-  
+
       const data = await response.json();
       console.log('Form data:', data);
       goToNextTab(data.slug); // Pass the slug to goToNextTab
@@ -126,7 +126,7 @@ const CourseFormatForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
                       id="noOfSection"
                       variant="outlined"
                       value={noOfSection}
-                      onChange={(e) => setNoOfSection(e.target.value)}
+                      onChange={(e) => setNoOfSection(Number(e.target.value))}
                       InputLabelProps={{ shrink: true }}
                     />
                   </Grid>
@@ -145,6 +145,7 @@ const CourseFormatForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
                     onChange={(e) => setTypeOfActivity(e.target.value)}
                     InputLabelProps={{ shrink: true }}
                   >
+                    <MenuItem value="Webinar">Webinar</MenuItem>
                     <MenuItem value="URL">URL</MenuItem>
                     <MenuItem value="Forum">Forum</MenuItem>
                     <MenuItem value="H5P">H5P</MenuItem>

@@ -25,7 +25,7 @@ const DescriptionInformationForm = ({ goToNextTab, goToPreviousTab, courseId, co
         console.error('Error converting HTML to DraftJS:', error);
         contentState = ContentState.createFromText('');
     }
-
+    const [description, setDescription] = useState(initialDescription);
     const [editorState, setEditorState] = useState(EditorState.createWithContent(contentState));
     const [thumbnailUrl, setThumbnailUrl] = useState(courseData ? courseData.thumbnail : staticThumbnailUrl);
     const [videoUrl, setVideoUrl] = useState(courseData ? courseData.video : staticVideoUrl);
