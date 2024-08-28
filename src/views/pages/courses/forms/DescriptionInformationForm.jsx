@@ -56,7 +56,7 @@ const DescriptionInformationForm = ({ goToNextTab, goToPreviousTab, courseId, co
                 if (type === 'thumbnail') {
                     setThumbnailUrl(response.data.thumbnailUrl); // Update thumbnail URL if applicable
                 } else if (type === 'video') {
-                    setVideoUrl(response.data.videoUrl); // Update video URL if applicable
+                    setVideoUrl(response.data.videoUrl);
                 }
             })
             .catch((error) => {

@@ -1,12 +1,71 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, TextField, MenuItem, Button, Grid, Stack, InputLabel, Select, FormControl } from '@mui/material';
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    TextField,
+    MenuItem,
+    Button,
+    Grid,
+    Stack,
+    InputLabel,
+    Select,
+    FormControl,
+    FormControlLabel,
+    Box,
+    Typography,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Divider,
+    Checkbox,
+    Snackbar,
+    Alert
+} from '@mui/material';
+import UploadIcon from '@mui/icons-material/Upload';
+import DateRangeIcon from '@mui/icons-material/DateRange';
 import { EditorState, convertToRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'; // Import the Draft editor stylesheet
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
-const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
+const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection }) => {
     const [sections, setSections] = useState([]);
     const [blogCategory, setBlogCategory] = useState('');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [interactiveVideoFile, setInteractiveVideoFile] = useState(null);
+    const [showQuestionFields, setShowQuestionFields] = useState(false);
+    const [showVideoUploadFields, setShowVideoUploadFields] = useState(false);
+    const [questionType, setQuestionType] = useState('');
+    const [questionText, setQuestionText] = useState('');
+    const [options, setOptions] = useState(['', '']);
+    const [answers, setAnswers] = useState([]);
+    const [allDay, setAllDay] = useState(false);
+    const [videoFile, setVideoFile] = useState(null); // State for video file
+    const [videoTitle, setVideoTitle] = useState(''); // State for video title
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [sectionNumber, setSectionNumber] = useState('');``
+    const [videoId, setvideoId] = useState('');
+    const [videoPreview, setVideoPreview] = useState(null);
+    const [showPreview, setShowPreview] = useState(false);
+    const [selectedQuestionType, setSelectedQuestionType] = useState('');
+    const [questionFields, setQuestionFields] = useState({
+        questionText: '',
+        options: ['', ''],
+        correctAnswer: ''
+    });
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
+    const [questions, setQuestions] = useState([]);
+    const [currentQuestion, setCurrentQuestion] = useState({
+        questionText: '',
+        options: ['', ''],
+        correctAnswer: '',
+        startTime: '',
+        endTime: ''
+    });
 
     useEffect(() => {
         const fetchCourseData = async () => {
@@ -43,14 +102,15 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
     }, [courseId]);
 
     const handleSectionChange = (index, field, value) => {
-        const newSections = [...sections];
-        newSections[index] = { ...newSections[index], [field]: value };
-        setSections(newSections);
+        setSections((prevSections) => {
+            const newSections = [...prevSections];
+            newSections[index] = { ...newSections[index], [field]: value };
+            return newSections;
+        });
     };
 
     const handleContentTypeChange = (index, event) => {
         const value = event.target.value;
-        // Reset fields based on selected content type
         handleSectionChange(index, 'contentType', value);
         handleSectionChange(index, 'contentUrl', '');
         handleSectionChange(index, 'youtubeUrl', '');
@@ -59,8 +119,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
         handleSectionChange(index, 'imageFile', null);
         handleSectionChange(index, 'editorState', EditorState.createEmpty());
         if (value === 'Blog') {
-            // Optionally reset or set blog-specific fields here
-            setBlogCategory('');
+            setBlogCategory(''); // Reset blog category if switching content type
         }
     };
 
@@ -68,12 +127,126 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
         setBlogCategory(event.target.value);
     };
 
-    const handleFileChange = (index, event) => {
-        handleSectionChange(index, 'uploadedFile', event.target.files[0]);
+    const handleFileChange = (event, type) => {
+        const file = event.target.files[0];
+        if (type === 'video') {
+            setVideoFile(file);
+        } else if (type === 'interactive') {
+            setInteractiveVideoFile(file);
+        }
     };
 
     const handleImageChange = (index, event) => {
         handleSectionChange(index, 'imageFile', event.target.files[0]);
+    };
+
+    const handleModalOpen = () => {
+        setModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setModalOpen(false);
+        // Reset all fields
+        setQuestions([]);
+        setCurrentQuestion({
+            questionText: '',
+            options: ['', ''],
+            correctAnswer: '',
+            startTime: '',
+            endTime: ''
+        });
+        setVideoFile(null);
+        setVideoTitle('');
+        setVideoPreview(null);
+        setShowPreview(false);
+    };
+
+    const handleVideoFileChange = (event) => {
+        const file = event.target.files[0];
+        setVideoFile(file);
+    };
+
+    const handleVideoUpload = async () => {
+        if (!videoFile || !videoTitle) {
+            setSnackbarMessage('Video file or title is missing');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return;
+        }
+
+        const videoFormData = new FormData();
+        videoFormData.append('file', videoFile);
+        videoFormData.append('title', videoTitle);
+        videoFormData.append('sectionNumber', noOfSection);
+        videoFormData.append('courseId', courseId);
+
+        try {
+            const videoResponse = await fetch('http://localhost:8080/api/video/upload', {
+                method: 'POST',
+                body: videoFormData,
+            });
+
+            if (!videoResponse.ok) {
+                throw new Error('Network response was not ok for video upload');
+            }
+
+            const videoResponseText = await videoResponse.text();
+            console.log('Raw Video Response:', videoResponseText);
+
+            let videoData;
+            try {
+                videoData = JSON.parse(videoResponseText);
+            } catch (e) {
+                console.error('Failed to parse video response JSON:', e);
+                throw new Error('Failed to parse video response JSON');
+            }
+
+            console.log('Parsed Video Data:', videoData);
+
+            const videoId = videoData.file._id || videoData.file.videoId || videoData.file.id;
+            if (!videoId) {
+                console.error('Video ID not found in response:', videoData);
+                throw new Error('Video ID not found in response');
+            }
+
+            console.log('Video ID:', videoId);
+
+            // Set video preview URL and show preview
+            const videoUrl = `http://localhost:8080/uploads/${videoData.file.filename}`;
+            setVideoPreview(videoUrl);
+            setShowPreview(true);
+
+        } catch (error) {
+            setSnackbarMessage('Error saving video and question data');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            console.error('Error saving video and question data:', error);
+        }
+    };
+
+
+    const handleAddQuestion = () => {
+        // Add the current question to the questions array
+        setQuestions([...questions, currentQuestion]);
+        // Reset the current question fields
+        setCurrentQuestion({
+            questionText: '',
+            options: ['', ''],
+            correctAnswer: '',
+            startTime: '',
+            endTime: ''
+        });
+        setSelectedQuestionType('');
+    };
+
+    const handleSubmit = () => {
+        console.log('Video Title:', videoTitle);
+        console.log('Video File:', videoFile);
+        console.log('Questions:', questions);
+    };
+
+    const handleSnackClose = () => {
+        setSnackbarOpen(false);
     };
 
     const handleNext = async () => {
@@ -108,6 +281,10 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
                     }
                 } else if (section.contentType === 'Games') {
                     formData.append('gameLink', section.gameLink);
+                } else if (section.contentType === 'Interactive Video') {
+                    if (interactiveVideoFile) {
+                        formData.append('interactiveVideoFile', interactiveVideoFile); // Append uploaded interactive video file
+                    }
                 }
 
                 const response = await fetch(`http://localhost:8080/api/courses/${courseId}/sections`, {
@@ -132,6 +309,66 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
     const handlePrevious = () => {
         goToPreviousTab();
     };
+
+    const handleAddAnswer = () => {
+        setAnswers((prevAnswers) => [...prevAnswers, { text: '', isCorrect: false }]);
+    };
+
+    const handleAnswerChange = (index, checked) => {
+        const newAnswers = [...answers];
+        if (checked) {
+            newAnswers.push(index);
+        } else {
+            const answerIndex = newAnswers.indexOf(index);
+            if (answerIndex > -1) {
+                newAnswers.splice(answerIndex, 1);
+            }
+        }
+        setAnswers(newAnswers);
+    };
+
+    const handleQuestionTypeChange = (event) => {
+        setSelectedQuestionType(event.target.value);
+        // Reset fields based on question type
+        setCurrentQuestion({
+            ...currentQuestion,
+            options: selectedQuestionType !== 'trueFalse' ? ['', ''] : [], // Initialize options if not True/False
+            correctAnswer: ''
+        });
+    };
+
+    const handleQuestionTextChange = (event) => {
+        setCurrentQuestion({ ...currentQuestion, questionText: event.target.value });
+    };
+    const handleAddOption = () => {
+        setOptions([...options, '']);
+    };
+
+    const handleOptionChange = (index, event) => {
+        const newOptions = [...currentQuestion.options];
+        newOptions[index] = event.target.value;
+        setCurrentQuestion({ ...currentQuestion, options: newOptions });
+    };
+
+    const handleCorrectAnswerChange = (event) => {
+        if (selectedQuestionType === 'multipleChoice') {
+            const value = event.target.value;
+            setCurrentQuestion(prevState => ({
+                ...prevState,
+                correctAnswer: prevState.correctAnswer.includes(value)
+                    ? prevState.correctAnswer.replace(value, '')
+                    : prevState.correctAnswer + value
+            }));
+        } else {
+            setCurrentQuestion({ ...currentQuestion, correctAnswer: event.target.value });
+        }
+    };
+
+    const handleTimeChange = (event) => {
+        const { name, value } = event.target;
+        setCurrentQuestion({ ...currentQuestion, [name]: value });
+    };
+
 
     return (
         <>
@@ -168,6 +405,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
                                                 <MenuItem value="Uploaded Video">Uploaded Video</MenuItem>
                                                 <MenuItem value="Games">Games</MenuItem>
                                                 <MenuItem value="Image">Image</MenuItem>
+                                                <MenuItem value="Interactive Video">Interactive Video</MenuItem>
                                             </Select>
                                         </FormControl>
                                     </Grid>
@@ -184,11 +422,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
                                             <Grid item xs={12} md={6}>
                                                 <FormControl fullWidth variant="outlined">
                                                     <InputLabel>Blog Category</InputLabel>
-                                                    <Select
-                                                        value={blogCategory}
-                                                        onChange={handleBlogCategoryChange}
-                                                        label="Blog Category"
-                                                    >
+                                                    <Select value={blogCategory} onChange={handleBlogCategoryChange} label="Blog Category">
                                                         <MenuItem value="">Select Blog Category</MenuItem>
                                                         <MenuItem value="Technology">Technology</MenuItem>
                                                         <MenuItem value="Education">Education</MenuItem>
@@ -251,6 +485,19 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
                                             />
                                         </Grid>
                                     )}
+                                    {section.contentType === 'Interactive Video' && (
+                                        <Grid item xs={12} md={6}>
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                startIcon={<UploadIcon />}
+                                                onClick={handleModalOpen}
+                                            >
+                                                Upload
+                                            </Button>
+                                            {interactiveVideoFile && <p>Selected file: {interactiveVideoFile.name}</p>}
+                                        </Grid>
+                                    )}
                                 </Grid>
                             </form>
                         </CardContent>
@@ -265,6 +512,191 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId }) => {
                     Next
                 </Button>
             </Stack>
+
+            <Dialog open={modalOpen} onClose={handleModalClose}>
+            <DialogTitle>Upload Video and Add Questions</DialogTitle>
+            <DialogContent>
+                {!showPreview ? (
+                    <>
+                        <TextField
+                            label="Video Title"
+                            value={videoTitle}
+                            onChange={(e) => setVideoTitle(e.target.value)}
+                            fullWidth
+                        />
+                        <Button
+                            variant="contained"
+                            component="label"
+                            startIcon={<UploadIcon />}
+                            sx={{ mt: 2 }}
+                        >
+                            Upload Video
+                            <input
+                                type="file"
+                                hidden
+                                onChange={handleVideoFileChange}
+                            />
+                        </Button>
+                        {videoFile && !showPreview && (
+                            <Button
+                                variant="contained"
+                                onClick={handleVideoUpload}
+                                sx={{ mt: 2 }}
+                            >
+                                Upload and Show Preview
+                            </Button>
+                        )}
+                    </>
+                ) : (
+                    <Box>
+                        <Typography variant="h6">Video Preview:</Typography>
+                        {videoPreview && (
+                            <video width="100%" controls>
+                                <source src={videoPreview} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        )}
+                        <Button
+                            variant="contained"
+                            onClick={() => setCurrentQuestion({
+                                questionText: '',
+                                options: ['', ''],
+                                correctAnswer: '',
+                                startTime: '',
+                                endTime: ''
+                            })}
+                            sx={{ mt: 2 }}
+                        >
+                            Add More Questions
+                        </Button>
+                        {currentQuestion && (
+                            <>
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel>Question Type</InputLabel>
+                                    <Select value={selectedQuestionType} onChange={handleQuestionTypeChange}>
+                                        <MenuItem value="multipleChoice">Multiple Choice</MenuItem>
+                                        <MenuItem value="singleChoice">Single Choice</MenuItem>
+                                        <MenuItem value="trueFalse">True/False</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <TextField
+                                    label="Question Text"
+                                    value={currentQuestion.questionText}
+                                    onChange={handleQuestionTextChange}
+                                    fullWidth
+                                    margin="normal"
+                                />
+                                {selectedQuestionType !== 'trueFalse' && (
+                                    <>
+                                        {currentQuestion.options.map((option, index) => (
+                                            <TextField
+                                                key={index}
+                                                label={`Option ${index + 1}`}
+                                                value={option}
+                                                onChange={(e) => handleOptionChange(index, e)}
+                                                fullWidth
+                                                margin="normal"
+                                            />
+                                        ))}
+                                        <FormControl component="fieldset">
+                                            {currentQuestion.options.map((option, index) => (
+                                                <FormControlLabel
+                                                    key={index}
+                                                    control={
+                                                        <Checkbox
+                                                            checked={currentQuestion.correctAnswer.includes(option)}
+                                                            onChange={(e) => handleCorrectAnswerChange({ target: { value: option } })}
+                                                        />
+                                                    }
+                                                    label={option}
+                                                />
+                                            ))}
+                                        </FormControl>
+                                    </>
+                                )}
+                                {selectedQuestionType === 'trueFalse' && (
+                                    <FormControl component="fieldset">
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={currentQuestion.correctAnswer === 'true'}
+                                                    onChange={(e) => handleCorrectAnswerChange({ target: { value: 'true' } })}
+                                                />
+                                            }
+                                            label="True"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    checked={currentQuestion.correctAnswer === 'false'}
+                                                    onChange={(e) => handleCorrectAnswerChange({ target: { value: 'false' } })}
+                                                />
+                                            }
+                                            label="False"
+                                        />
+                                    </FormControl>
+                                )}
+                                <TextField
+                                    label="Start Time (seconds)"
+                                    type="number"
+                                    name="startTime"
+                                    value={currentQuestion.startTime}
+                                    onChange={handleTimeChange}
+                                    fullWidth
+                                    margin="normal"
+                                />
+                                <TextField
+                                    label="End Time (seconds)"
+                                    type="number"
+                                    name="endTime"
+                                    value={currentQuestion.endTime}
+                                    onChange={handleTimeChange}
+                                    fullWidth
+                                    margin="normal"
+                                />
+                                <Button
+                                    variant="contained"
+                                    onClick={handleAddQuestion}
+                                    sx={{ mt: 2 }}
+                                >
+                                    Save Question
+                                </Button>
+                            </>
+                        )}
+                        {questions.length > 0 && (
+                            <Box sx={{ mt: 2 }}>
+                                {questions.map((q, index) => (
+                                    <Box key={index} sx={{ mb: 2 }}>
+                                        <Typography variant="subtitle1">Question {index + 1}:</Typography>
+                                        <Typography variant="body2">Text: {q.questionText}</Typography>
+                                        <Typography variant="body2">Options: {q.options.join(', ')}</Typography>
+                                        <Typography variant="body2">Correct Answer: {q.correctAnswer}</Typography>
+                                        <Typography variant="body2">Start Time: {q.startTime}</Typography>
+                                        <Typography variant="body2">End Time: {q.endTime}</Typography>
+                                    </Box>
+                                ))}
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSubmit}
+                                    sx={{ mt: 2 }}
+                                >
+                                    Submit All Data
+                                </Button>
+                            </Box>
+                        )}
+                    </Box>
+                )}
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleModalClose}>Close</Button>
+            </DialogActions>
+        </Dialog>
+
+            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackClose}>
+                <Alert onClose={handleSnackClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </>
     );
 };
