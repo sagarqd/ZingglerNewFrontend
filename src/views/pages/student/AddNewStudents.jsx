@@ -300,28 +300,34 @@ const AddNewStudents = () => {
         setEducationFields([...educationFields, 'Additional Degree']);
     };
 
-    const handleAddStudent = () => {
-      // Gather all form data and send it to the backend
-      // For example, using fetch or axios
-      // const formData = new FormData();
-      // formData.append('fullname', ...);
-      // formData.append('dateOfBirth', selectedDate);
-      // Add other form fields similarly
-      // 
-      // fetch('/api/add-student', {
-      //     method: 'POST',
-      //     body: formData,
-      // })
-      // .then(response => response.json())
-      // .then(data => {
-      //     console.log('Success:', data);
-      // })
-      // .catch((error) => {
-      //     console.error('Error:', error);
-      // });
+    const handleAddStudent = async () => {
+        const data = new FormData();
+        data.append('fullName', formData.fullName);
+        data.append('gender', formData.gender);
+        data.append('userName', formData.userName);
+        data.append('dateOfBirth', dayjs(formData.dateOfBirth).format('MM/DD/YYYY'));
+        data.append('password', formData.password);
+        if (formData.studentAvatar) {
+            data.append('studentAvatar', formData.studentAvatar);
+        }
+        // Append other form data similarly
 
-      alert('Student added successfully!'); // Placeholder
-  };
+        try {
+            const response = await fetch('/api/add-student', {
+                method: 'POST',
+                body: data,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('Student added successfully!');
+            } else {
+                alert('Failed to add student.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
 
     return (
       <Container maxWidth="xl">
@@ -331,22 +337,24 @@ const AddNewStudents = () => {
           </Box>
       </Paper>
       <Paper sx={{ p: 4 }}>
-          <Box>
-              {steps[activeStep] === 'Course Information' && (
-                  <CourseInformationForm
-                      selectedDate={selectedDate}
-                      setSelectedDate={setSelectedDate}
-                      educationFields={educationFields}
-                      handleAddField={handleAddField}
-                  />
-              )}
-              {steps[activeStep] === 'Course Format' && (
-                  <Box>
-                      <Typography variant="h5">Course Format</Typography>
-                      {/* Course Format Form goes here */}
-                  </Box>
-              )}
-          </Box>
+        <Box>
+                {steps[activeStep] === 'Course Information' && (
+                    <CourseInformationForm
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                        educationFields={educationFields}
+                        handleAddField={handleAddField}
+                        handleInputChange={handleInputChange}
+                        handleFileChange={handleFileChange}
+                    />
+                )}
+                {steps[activeStep] === 'Course Format' && (
+                    <Box>
+                        <Typography variant="h5">Course Format</Typography>
+                        {/* Course format form */}
+                    </Box>
+                )}
+            </Box>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
               <Button
                   variant="contained"
