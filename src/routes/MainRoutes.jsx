@@ -34,6 +34,7 @@ import MeetingLayout from 'views/pages/meetings/MeetingLayout';
 import ColorTablet from 'webgl/index';
 import Whiteboard from 'views/pages/whiteboard/Whiteboard';
 import SamplePage from 'views/sample-page';
+import Homepage from 'views/pages/Homepage/Homepage';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -173,6 +174,10 @@ const MainRoutes = {
         }
       ]
     },
+    {
+      path: 'home',
+      element:<Homepage/>
+    }
   ]
 };
 
