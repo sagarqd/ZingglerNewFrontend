@@ -62,9 +62,10 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [currentQuestion, setCurrentQuestion] = useState({
         questionText: '',
         options: ['', ''],
-        correctAnswer: '',
+        correctAnswer: [],
         startTime: '',
-        endTime: ''
+        endTime: '',
+        type: '',   
     });
 
     useEffect(() => {
@@ -185,37 +186,26 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                 method: 'POST',
                 body: videoFormData,
             });
-
+        
             if (!videoResponse.ok) {
                 throw new Error('Network response was not ok for video upload');
             }
-
-            const videoResponseText = await videoResponse.text();
-            console.log('Raw Video Response:', videoResponseText);
-
-            let videoData;
-            try {
-                videoData = JSON.parse(videoResponseText);
-            } catch (e) {
-                console.error('Failed to parse video response JSON:', e);
-                throw new Error('Failed to parse video response JSON');
-            }
-
+        
+            const videoData = await videoResponse.json(); // Parse the response as JSON
             console.log('Parsed Video Data:', videoData);
-
-            const videoId = videoData.file._id || videoData.file.videoId || videoData.file.id;
-            if (!videoId) {
-                console.error('Video ID not found in response:', videoData);
+        
+            const videoId = videoData.file._id || videoData.file.videoId || videoData.file.id; // Extract the video ID
+            console.log('Video ID:', videoId);
+        
+            if (videoId) {
+                setvideoId(videoId); // Store the video ID in the state
+                const videoUrl = `http://localhost:8080/uploads/${videoData.file.filename}`;
+                setVideoPreview(videoUrl);
+                setShowPreview(true);
+            } else {
                 throw new Error('Video ID not found in response');
             }
-
-            console.log('Video ID:', videoId);
-
-            // Set video preview URL and show preview
-            const videoUrl = `http://localhost:8080/uploads/${videoData.file.filename}`;
-            setVideoPreview(videoUrl);
-            setShowPreview(true);
-
+        
         } catch (error) {
             setSnackbarMessage('Error saving video and question data');
             setSnackbarSeverity('error');
@@ -234,15 +224,36 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             options: ['', ''],
             correctAnswer: '',
             startTime: '',
-            endTime: ''
+            endTime: '',
+            type: '', 
         });
         setSelectedQuestionType('');
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
         console.log('Video Title:', videoTitle);
         console.log('Video File:', videoFile);
         console.log('Questions:', questions);
+        console.log(videoId)
+        try {
+            
+            if(videoId==''){
+                console.log("Video is not found for uploading question")
+                return;
+            }
+            const videoQuestions = await fetch(`http://localhost:8080/api/video//questions/${videoId}`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ questions }) 
+            })
+            if(videoQuestions.ok){
+                console.log("Questions uploaded",videoQuestions);
+            }
+        } catch (error) {
+            console.log("Error in uploading Quesion",error)
+        } 
     };
 
     const handleSnackClose = () => {
@@ -328,14 +339,13 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     };
 
     const handleQuestionTypeChange = (event) => {
-        setSelectedQuestionType(event.target.value);
-        // Reset fields based on question type
-        setCurrentQuestion({
-            ...currentQuestion,
-            options: selectedQuestionType !== 'trueFalse' ? ['', ''] : [], // Initialize options if not True/False
-            correctAnswer: ''
-        });
-    };
+        const selectedType = event.target.value;
+        setCurrentQuestion((prev) => ({
+            ...prev,
+            type: selectedType
+        }));
+        setSelectedQuestionType(selectedType);  // If you need to update any other UI elements based on type
+};
 
     const handleQuestionTextChange = (event) => {
         setCurrentQuestion({ ...currentQuestion, questionText: event.target.value });
@@ -351,17 +361,18 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     };
 
     const handleCorrectAnswerChange = (event) => {
-        if (selectedQuestionType === 'multipleChoice') {
-            const value = event.target.value;
-            setCurrentQuestion(prevState => ({
-                ...prevState,
-                correctAnswer: prevState.correctAnswer.includes(value)
-                    ? prevState.correctAnswer.replace(value, '')
-                    : prevState.correctAnswer + value
-            }));
-        } else {
-            setCurrentQuestion({ ...currentQuestion, correctAnswer: event.target.value });
-        }
+        const value = event.target.value;
+        setCurrentQuestion((prev) => {
+            let updatedAnswers;
+            if (prev.correctAnswer.includes(value)) {
+                // If already selected, remove it from the array
+                updatedAnswers = prev.correctAnswer.filter(answer => answer !== value);
+            } else {
+                // Otherwise, add it to the array
+                updatedAnswers = [...prev.correctAnswer, value];
+            }
+            return { ...prev, correctAnswer: updatedAnswers };
+        });
     };
 
     const handleTimeChange = (event) => {
@@ -573,7 +584,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                             <>
                                 <FormControl fullWidth margin="normal">
                                     <InputLabel>Question Type</InputLabel>
-                                    <Select value={selectedQuestionType} onChange={handleQuestionTypeChange}>
+                                    <Select value={currentQuestion.type} onChange={handleQuestionTypeChange}>
                                         <MenuItem value="multipleChoice">Multiple Choice</MenuItem>
                                         <MenuItem value="singleChoice">Single Choice</MenuItem>
                                         <MenuItem value="trueFalse">True/False</MenuItem>
@@ -667,10 +678,11 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                             <Box sx={{ mt: 2 }}>
                                 {questions.map((q, index) => (
                                     <Box key={index} sx={{ mb: 2 }}>
+                                         <Typography variant="body2">Type: {q.type}</Typography>
                                         <Typography variant="subtitle1">Question {index + 1}:</Typography>
                                         <Typography variant="body2">Text: {q.questionText}</Typography>
                                         <Typography variant="body2">Options: {q.options.join(', ')}</Typography>
-                                        <Typography variant="body2">Correct Answer: {q.correctAnswer}</Typography>
+                                        <Typography variant="body2">Correct Answer(s): {q.correctAnswer.join(', ')}</Typography>  {/* Updated to handle array */}
                                         <Typography variant="body2">Start Time: {q.startTime}</Typography>
                                         <Typography variant="body2">End Time: {q.endTime}</Typography>
                                     </Box>
