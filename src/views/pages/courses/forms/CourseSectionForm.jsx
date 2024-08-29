@@ -46,7 +46,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-    const [sectionNumber, setSectionNumber] = useState('');``
+    const [sectionNumber, setSectionNumber] = useState(''); ``
     const [videoId, setvideoId] = useState('');
     const [videoPreview, setVideoPreview] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
@@ -61,11 +61,11 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [questions, setQuestions] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState({
         questionText: '',
-        options: ['', ''],
+        options: ['', '', '', ''],
         correctAnswer: [],
         startTime: '',
         endTime: '',
-        type: '',   
+        type: '',
     });
 
     useEffect(() => {
@@ -186,17 +186,17 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                 method: 'POST',
                 body: videoFormData,
             });
-        
+
             if (!videoResponse.ok) {
                 throw new Error('Network response was not ok for video upload');
             }
-        
+
             const videoData = await videoResponse.json(); // Parse the response as JSON
             console.log('Parsed Video Data:', videoData);
-        
+
             const videoId = videoData.file._id || videoData.file.videoId || videoData.file.id; // Extract the video ID
             console.log('Video ID:', videoId);
-        
+
             if (videoId) {
                 setvideoId(videoId); // Store the video ID in the state
                 const videoUrl = `http://localhost:8080/uploads/${videoData.file.filename}`;
@@ -205,7 +205,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             } else {
                 throw new Error('Video ID not found in response');
             }
-        
+
         } catch (error) {
             setSnackbarMessage('Error saving video and question data');
             setSnackbarSeverity('error');
@@ -216,44 +216,42 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
 
 
     const handleAddQuestion = () => {
-        // Add the current question to the questions array
         setQuestions([...questions, currentQuestion]);
-        // Reset the current question fields
         setCurrentQuestion({
             questionText: '',
-            options: ['', ''],
-            correctAnswer: '',
+            options: ['', '', '', ''],
+            correctAnswer: [],
             startTime: '',
             endTime: '',
-            type: '', 
+            type: '',
         });
         setSelectedQuestionType('');
     };
 
-    const handleSubmit = async() => {
+    const handleSubmit = async () => {
         console.log('Video Title:', videoTitle);
         console.log('Video File:', videoFile);
         console.log('Questions:', questions);
         console.log(videoId)
         try {
-            
-            if(videoId==''){
+
+            if (videoId == '') {
                 console.log("Video is not found for uploading question")
                 return;
             }
-            const videoQuestions = await fetch(`http://localhost:8080/api/video//questions/${videoId}`,{
+            const videoQuestions = await fetch(`http://localhost:8080/api/video//questions/${videoId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ questions }) 
+                body: JSON.stringify({ questions })
             })
-            if(videoQuestions.ok){
-                console.log("Questions uploaded",videoQuestions);
+            if (videoQuestions.ok) {
+                console.log("Questions uploaded", videoQuestions);
             }
         } catch (error) {
-            console.log("Error in uploading Quesion",error)
-        } 
+            console.log("Error in uploading Quesion", error)
+        }
     };
 
     const handleSnackClose = () => {
@@ -345,7 +343,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             type: selectedType
         }));
         setSelectedQuestionType(selectedType);  // If you need to update any other UI elements based on type
-};
+    };
 
     const handleQuestionTextChange = (event) => {
         setCurrentQuestion({ ...currentQuestion, questionText: event.target.value });
@@ -525,184 +523,184 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             </Stack>
 
             <Dialog open={modalOpen} onClose={handleModalClose}>
-            <DialogTitle>Upload Video and Add Questions</DialogTitle>
-            <DialogContent>
-                {!showPreview ? (
-                    <>
-                        <TextField
-                            label="Video Title"
-                            value={videoTitle}
-                            onChange={(e) => setVideoTitle(e.target.value)}
-                            fullWidth
-                        />
-                        <Button
-                            variant="contained"
-                            component="label"
-                            startIcon={<UploadIcon />}
-                            sx={{ mt: 2 }}
-                        >
-                            Upload Video
-                            <input
-                                type="file"
-                                hidden
-                                onChange={handleVideoFileChange}
+                <DialogTitle>Upload Video and Add Questions</DialogTitle>
+                <DialogContent>
+                    {!showPreview ? (
+                        <>
+                            <TextField
+                                label="Video Title"
+                                value={videoTitle}
+                                onChange={(e) => setVideoTitle(e.target.value)}
+                                fullWidth
                             />
-                        </Button>
-                        {videoFile && !showPreview && (
                             <Button
                                 variant="contained"
-                                onClick={handleVideoUpload}
+                                component="label"
+                                startIcon={<UploadIcon />}
                                 sx={{ mt: 2 }}
                             >
-                                Upload and Show Preview
-                            </Button>
-                        )}
-                    </>
-                ) : (
-                    <Box>
-                        <Typography variant="h6">Video Preview:</Typography>
-                        {videoPreview && (
-                            <video width="100%" controls>
-                                <source src={videoPreview} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        )}
-                        <Button
-                            variant="contained"
-                            onClick={() => setCurrentQuestion({
-                                questionText: '',
-                                options: ['', ''],
-                                correctAnswer: '',
-                                startTime: '',
-                                endTime: ''
-                            })}
-                            sx={{ mt: 2 }}
-                        >
-                            Add More Questions
-                        </Button>
-                        {currentQuestion && (
-                            <>
-                                <FormControl fullWidth margin="normal">
-                                    <InputLabel>Question Type</InputLabel>
-                                    <Select value={currentQuestion.type} onChange={handleQuestionTypeChange}>
-                                        <MenuItem value="multipleChoice">Multiple Choice</MenuItem>
-                                        <MenuItem value="singleChoice">Single Choice</MenuItem>
-                                        <MenuItem value="trueFalse">True/False</MenuItem>
-                                    </Select>
-                                </FormControl>
-                                <TextField
-                                    label="Question Text"
-                                    value={currentQuestion.questionText}
-                                    onChange={handleQuestionTextChange}
-                                    fullWidth
-                                    margin="normal"
+                                Upload Video
+                                <input
+                                    type="file"
+                                    hidden
+                                    onChange={handleVideoFileChange}
                                 />
-                                {selectedQuestionType !== 'trueFalse' && (
-                                    <>
-                                        {currentQuestion.options.map((option, index) => (
-                                            <TextField
-                                                key={index}
-                                                label={`Option ${index + 1}`}
-                                                value={option}
-                                                onChange={(e) => handleOptionChange(index, e)}
-                                                fullWidth
-                                                margin="normal"
-                                            />
-                                        ))}
-                                        <FormControl component="fieldset">
+                            </Button>
+                            {videoFile && !showPreview && (
+                                <Button
+                                    variant="contained"
+                                    onClick={handleVideoUpload}
+                                    sx={{ mt: 2 }}
+                                >
+                                    Upload and Show Preview
+                                </Button>
+                            )}
+                        </>
+                    ) : (
+                        <Box>
+                            <Typography variant="h6">Video Preview:</Typography>
+                            {videoPreview && (
+                                <video width="100%" controls>
+                                    <source src={videoPreview} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            )}
+                            <Button
+                                variant="contained"
+                                onClick={() => setCurrentQuestion({
+                                    questionText: '',
+                                    options: ['', ''],
+                                    correctAnswer: '',
+                                    startTime: '',
+                                    endTime: ''
+                                })}
+                                sx={{ mt: 2 }}
+                            >
+                                Add More Questions
+                            </Button>
+                            {currentQuestion && (
+                                <>
+                                    <FormControl fullWidth margin="normal">
+                                        <InputLabel>Question Type</InputLabel>
+                                        <Select value={currentQuestion.type} onChange={handleQuestionTypeChange}>
+                                            <MenuItem value="multipleChoice">Multiple Choice</MenuItem>
+                                            <MenuItem value="singleChoice">Single Choice</MenuItem>
+                                            <MenuItem value="trueFalse">True/False</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                    <TextField
+                                        label="Question Text"
+                                        value={currentQuestion.questionText}
+                                        onChange={handleQuestionTextChange}
+                                        fullWidth
+                                        margin="normal"
+                                    />
+                                    {selectedQuestionType !== 'trueFalse' && (
+                                        <>
                                             {currentQuestion.options.map((option, index) => (
-                                                <FormControlLabel
+                                                <TextField
                                                     key={index}
-                                                    control={
-                                                        <Checkbox
-                                                            checked={currentQuestion.correctAnswer.includes(option)}
-                                                            onChange={(e) => handleCorrectAnswerChange({ target: { value: option } })}
-                                                        />
-                                                    }
-                                                    label={option}
+                                                    label={`Option ${index + 1}`}
+                                                    value={option}
+                                                    onChange={(e) => handleOptionChange(index, e)}
+                                                    fullWidth
+                                                    margin="normal"
                                                 />
                                             ))}
+                                            <FormControl component="fieldset">
+                                                {currentQuestion.options.map((option, index) => (
+                                                    <FormControlLabel
+                                                        key={index}
+                                                        control={
+                                                            <Checkbox
+                                                                checked={currentQuestion.correctAnswer.includes(option)}
+                                                                onChange={(e) => handleCorrectAnswerChange({ target: { value: option } })}
+                                                            />
+                                                        }
+                                                        label={option}
+                                                    />
+                                                ))}
+                                            </FormControl>
+                                        </>
+                                    )}
+                                    {selectedQuestionType === 'trueFalse' && (
+                                        <FormControl component="fieldset">
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={currentQuestion.correctAnswer === 'true'}
+                                                        onChange={(e) => handleCorrectAnswerChange({ target: { value: 'true' } })}
+                                                    />
+                                                }
+                                                label="True"
+                                            />
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={currentQuestion.correctAnswer === 'false'}
+                                                        onChange={(e) => handleCorrectAnswerChange({ target: { value: 'false' } })}
+                                                    />
+                                                }
+                                                label="False"
+                                            />
                                         </FormControl>
-                                    </>
-                                )}
-                                {selectedQuestionType === 'trueFalse' && (
-                                    <FormControl component="fieldset">
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={currentQuestion.correctAnswer === 'true'}
-                                                    onChange={(e) => handleCorrectAnswerChange({ target: { value: 'true' } })}
-                                                />
-                                            }
-                                            label="True"
-                                        />
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={currentQuestion.correctAnswer === 'false'}
-                                                    onChange={(e) => handleCorrectAnswerChange({ target: { value: 'false' } })}
-                                                />
-                                            }
-                                            label="False"
-                                        />
-                                    </FormControl>
-                                )}
-                                <TextField
-                                    label="Start Time (seconds)"
-                                    type="number"
-                                    name="startTime"
-                                    value={currentQuestion.startTime}
-                                    onChange={handleTimeChange}
-                                    fullWidth
-                                    margin="normal"
-                                />
-                                <TextField
-                                    label="End Time (seconds)"
-                                    type="number"
-                                    name="endTime"
-                                    value={currentQuestion.endTime}
-                                    onChange={handleTimeChange}
-                                    fullWidth
-                                    margin="normal"
-                                />
-                                <Button
-                                    variant="contained"
-                                    onClick={handleAddQuestion}
-                                    sx={{ mt: 2 }}
-                                >
-                                    Save Question
-                                </Button>
-                            </>
-                        )}
-                        {questions.length > 0 && (
-                            <Box sx={{ mt: 2 }}>
-                                {questions.map((q, index) => (
-                                    <Box key={index} sx={{ mb: 2 }}>
-                                         <Typography variant="body2">Type: {q.type}</Typography>
-                                        <Typography variant="subtitle1">Question {index + 1}:</Typography>
-                                        <Typography variant="body2">Text: {q.questionText}</Typography>
-                                        <Typography variant="body2">Options: {q.options.join(', ')}</Typography>
-                                        <Typography variant="body2">Correct Answer(s): {q.correctAnswer.join(', ')}</Typography>  {/* Updated to handle array */}
-                                        <Typography variant="body2">Start Time: {q.startTime}</Typography>
-                                        <Typography variant="body2">End Time: {q.endTime}</Typography>
-                                    </Box>
-                                ))}
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSubmit}
-                                    sx={{ mt: 2 }}
-                                >
-                                    Submit All Data
-                                </Button>
-                            </Box>
-                        )}
-                    </Box>
-                )}
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={handleModalClose}>Close</Button>
-            </DialogActions>
-        </Dialog>
+                                    )}
+                                    <TextField
+                                        label="Start Time (seconds)"
+                                        type="number"
+                                        name="startTime"
+                                        value={currentQuestion.startTime}
+                                        onChange={handleTimeChange}
+                                        fullWidth
+                                        margin="normal"
+                                    />
+                                    <TextField
+                                        label="End Time (seconds)"
+                                        type="number"
+                                        name="endTime"
+                                        value={currentQuestion.endTime}
+                                        onChange={handleTimeChange}
+                                        fullWidth
+                                        margin="normal"
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleAddQuestion}
+                                        sx={{ mt: 2 }}
+                                    >
+                                        Save Question
+                                    </Button>
+                                </>
+                            )}
+                            {questions.length > 0 && (
+                                <Box sx={{ mt: 2 }}>
+                                    {questions.map((q, index) => (
+                                        <Box key={index} sx={{ mb: 2 }}>
+                                            <Typography variant="body2">Type: {q.type}</Typography>
+                                            <Typography variant="subtitle1">Question {index + 1}:</Typography>
+                                            <Typography variant="body2">Text: {q.questionText}</Typography>
+                                            <Typography variant="body2">Options: {q.options.join(', ')}</Typography>
+                                            <Typography variant="body2">Correct Answer(s): {q.correctAnswer.join(', ')}</Typography>  {/* Updated to handle array */}
+                                            <Typography variant="body2">Start Time: {q.startTime}</Typography>
+                                            <Typography variant="body2">End Time: {q.endTime}</Typography>
+                                        </Box>
+                                    ))}
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleSubmit}
+                                        sx={{ mt: 2 }}
+                                    >
+                                        Submit All Data
+                                    </Button>
+                                </Box>
+                            )}
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleModalClose}>Close</Button>
+                </DialogActions>
+            </Dialog>
 
             <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackClose}>
                 <Alert onClose={handleSnackClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
