@@ -115,7 +115,7 @@ const MainRoutes = {
           element: <GridView />
         },
         {
-          path: '/courses/:slug',
+          path: '/courses/:slug/:_id',
           element: <CourseDetails />
         },
         {

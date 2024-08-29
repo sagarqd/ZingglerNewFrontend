@@ -23,14 +23,17 @@ const CourseDetails = () => {
   const playerRef = useRef(null);
   const playerContainerRef = useRef(null);
   const { slug } = useParams();
+  const { _id } = useParams();
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         const response = await fetch(`http://localhost:8080/api/courses/${slug}`);
         if (!response.ok) {
+
           throw new Error('Network response was not ok');
         }
+        console.log(_id);
         const contentType = response.headers.get('Content-Type');
         if (!contentType || !contentType.includes('application/json')) {
           throw new Error('Expected JSON response');

@@ -70,7 +70,7 @@ const CourseCard = ({ course, handleClick, setLoading, setCourses, courses }) =>
     if (index === 1) handleEdit();
     if (index === 2) handleDeleteClick();
     if (index === 0) {
-      navigate(`/courses/${course.slug}`); // Navigate to the course detail page
+      navigate(`/courses/${course.slug}/${course._id}`); // Navigate to the course detail page
     }
   };
 
