@@ -53,6 +53,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [videoId, setvideoId] = useState('');
     const [videoPreview, setVideoPreview] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
+    const [contentType, setContentType] = useState('');
     const [selectedQuestionType, setSelectedQuestionType] = useState('');
     const [questionFields, setQuestionFields] = useState({
         questionText: '',
@@ -158,9 +159,10 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         setCurrentQuestion({
             questionText: '',
             options: ['', '', '', ''],
-            correctAnswer: '',
+            correctAnswer: [],
             startTime: '',
-            endTime: ''
+            endTime: '',
+            type: ''
         });
         setVideoFile(null);
         setVideoTitle('');
@@ -325,33 +327,55 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             return;
         }
 
+        const sectionNumbers = []; // Array to store section numbers
+        let slug; // Variable to store the generated slug
+
         try {
-            const formData = new FormData();
+            // Iterate over each section and send its data
+            for (let i = 0; i < sections.length; i++) {
+                const formData = new FormData();
+                const section = sections[i];
 
-            // Map sections to a format that the backend expects
-            const courseSections = sections.map((section) => ({
-                sectionTitle: section.sectionTitle,
-                contentType: section.contentType || ''
-            }));
+                // Store and log the section number
+                const sectionNumber = section.sectionNumber || '';
+                sectionNumbers.push(sectionNumber);
+                console.log(`Section ${i + 1} Number:`, sectionNumber);
 
-            console.log('Sending sections data:', courseSections);
-            formData.append('courseSections', JSON.stringify(courseSections));
+                // Append section details to FormData
+                formData.append('sectionNumber', sectionNumber);
+                formData.append('sectionTitle', section.sectionTitle || '');
+                formData.append('contentType', section.contentType || '');
 
-            const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
-                method: 'PUT',
-                body: formData
-            });
+                // Send data for the current section
+                const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
+                    method: 'PUT',
+                    body: formData
+                });
 
-            if (!response.ok) {
-                const errorDetails = await response.text();
-                console.error('Error response details:', errorDetails);
-                throw new Error(`Network response was not ok: ${response.statusText}`);
+                if (!response.ok) {
+                    const errorDetails = await response.text();
+                    console.error('Error response details:', errorDetails);
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Section data:', data);
+
+                // Assume the response contains a slug or similar identifier
+                if (data && data.slug) {
+                    slug = data.slug;
+                }
             }
 
-            const data = await response.json();
-            console.log('Section data:', data);
+            // Log all section numbers once all sections are processed
+            console.log('All Section Numbers:', sectionNumbers);
 
-            goToNextTab();
+            // Check if slug is defined before passing to goToNextTab
+            if (slug) {
+                goToNextTab(slug);
+            } else {
+                console.error('Slug is undefined');
+            }
         } catch (error) {
             console.error('Error saving course sections:', error);
         }
