@@ -51,7 +51,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [sectionNumber, setSectionNumber] = useState('');
     const [selectedSectionIndex, setSelectedSectionIndex] = useState(null);
 
-    
+
     const [videoId, setvideoId] = useState('');
     const [videoPreview, setVideoPreview] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
@@ -273,7 +273,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     //             const formData = new FormData();
     //             formData.append('sectionTitle', section.sectionTitle);
     //             formData.append('contentType', section.contentType);
-    
+
     //             // if (section.contentType === 'Blog') {
     //             //     const content = JSON.stringify(convertToRaw(section.editorState.getCurrentContent()));
     //             //     formData.append('blogContent', content);
@@ -297,7 +297,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     //             //         formData.append('interactiveVideoFile', interactiveVideoFile); // Append uploaded interactive video file
     //             //     }
     //             // }
-    
+
     //             return Object.fromEntries(formData.entries());
     //         });
     //         console.log(sectionsData)
@@ -312,9 +312,9 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
 
     //             const data = await response.json();
     //             console.log('Section data:', data);
-                
+
     //             goToNextTab();
-            
+
     //     } catch (error) {
     //         console.error('Error saving course sections:', error);
     //     }
@@ -326,7 +326,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             console.error('Course ID is not defined');
             return;
         }
-    
+
         try {
             const formData = new FormData();
 
@@ -335,32 +335,32 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                 sectionTitle: section.sectionTitle,
                 contentType: section.contentType||'',
             }));
-    
+
             console.log('Sending sections data:', courseSections);
             formData.append('courseSections', JSON.stringify(courseSections));
-    
+
             const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
                 method: 'PUT',
                 body:formData
             });
-    
+
             if (!response.ok) {
                 const errorDetails = await response.text();
                 console.error('Error response details:', errorDetails);
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
-    
+
             const data = await response.json();
             console.log('Section data:', data);
-    
+
             goToNextTab();
-    
+
         } catch (error) {
             console.error('Error saving course sections:', error);
         }
     };
-    
-    
+
+
     const handlePrevious = () => {
         goToPreviousTab();
     };
@@ -461,7 +461,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                                 <MenuItem value="YouTube Video">YouTube Video</MenuItem>
                                                 <MenuItem value="Uploaded Video">Uploaded Video</MenuItem>
                                                 <MenuItem value="Games">Games</MenuItem>
-                                                <MenuItem value="Image">Image</MenuItem>
+                                                <MenuItem  value="Image">Image</MenuItem>
                                                 <MenuItem value="Interactive Video">Interactive Video</MenuItem>
                                             </Select>
                                         </FormControl>
