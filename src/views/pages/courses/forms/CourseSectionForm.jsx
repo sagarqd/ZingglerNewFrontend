@@ -296,8 +296,8 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                     }
                 }
 
-                const response = await fetch(`http://localhost:8080/api/courses/${courseId}/sections`, {
-                    method: 'POST',
+                const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
+                    method: 'PUT',
                     body: formData
                 });
 
@@ -571,7 +571,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                         <Select value={currentQuestion.type} onChange={handleQuestionTypeChange}>
                                             <MenuItem value="multipleChoice">Multiple Choice</MenuItem>
                                             <MenuItem value="singleChoice">Single Choice</MenuItem>
-                                            <MenuItem value="trueFalse">True/False</MenuItem>
+                                            <MenuItem value="true/false">True/False</MenuItem>
                                         </Select>
                                     </FormControl>
                                     <TextField
@@ -638,7 +638,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                     </FormControl>
                                 </>
                             )}
-                            {selectedQuestionType === 'trueFalse' && (
+                            {selectedQuestionType === 'true/false' && (
                                 <FormControl component="fieldset">
                                     <RadioGroup
                                         value={currentQuestion.correctAnswer[0] || ''}
