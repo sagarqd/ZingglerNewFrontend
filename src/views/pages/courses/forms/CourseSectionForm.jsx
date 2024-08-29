@@ -40,7 +40,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [showVideoUploadFields, setShowVideoUploadFields] = useState(false);
     const [questionType, setQuestionType] = useState('');
     const [questionText, setQuestionText] = useState('');
-    const [options, setOptions] = useState(['', '']);
+    const [options, setOptions] = useState(['', '','','']);
     const [answers, setAnswers] = useState([]);
     const [allDay, setAllDay] = useState(false);
     const [videoFile, setVideoFile] = useState(null); // State for video file
@@ -49,14 +49,14 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [sectionNumber, setSectionNumber] = useState('');
-    ``;
+    
     const [videoId, setvideoId] = useState('');
     const [videoPreview, setVideoPreview] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
     const [selectedQuestionType, setSelectedQuestionType] = useState('');
     const [questionFields, setQuestionFields] = useState({
         questionText: '',
-        options: ['', ''],
+        options: ['', '','',''],
         correctAnswer: ''
     });
     const [startTime, setStartTime] = useState('');
@@ -154,7 +154,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         setQuestions([]);
         setCurrentQuestion({
             questionText: '',
-            options: ['', ''],
+            options: ['', '','',''],
             correctAnswer: '',
             startTime: '',
             endTime: ''
@@ -258,63 +258,105 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         setSnackbarOpen(false);
     };
 
+    // const handleNext = async () => {
+    //     if (!courseId) {
+    //         console.error('Course ID is not defined');
+    //         return;
+    //     }
+
+    //     try {
+    //         const sectionsData = sections.map(section => {
+    //             const formData = new FormData();
+    //             formData.append('sectionTitle', section.sectionTitle);
+    //             formData.append('contentType', section.contentType);
+    
+    //             // if (section.contentType === 'Blog') {
+    //             //     const content = JSON.stringify(convertToRaw(section.editorState.getCurrentContent()));
+    //             //     formData.append('blogContent', content);
+    //             //     formData.append('blogCategory', blogCategory); // Include blog category
+    //             // } else if (section.contentType === 'URL') {
+    //             //     formData.append('contentUrl', section.contentUrl);
+    //             // } else if (section.contentType === 'YouTube Video') {
+    //             //     formData.append('youtubeUrl', section.youtubeUrl);
+    //             // } else if (section.contentType === 'Uploaded Video') {
+    //             //     if (section.uploadedFile) {
+    //             //         formData.append('uploadedFile', section.uploadedFile);
+    //             //     }
+    //             // } else if (section.contentType === 'Image') {
+    //             //     if (section.imageFile) {
+    //             //         formData.append('imageFile', section.imageFile);
+    //             //     }
+    //             // } else if (section.contentType === 'Games') {
+    //             //     formData.append('gameLink', section.gameLink);
+    //             // } else if (section.contentType === 'Interactive Video') {
+    //             //     if (interactiveVideoFile) {
+    //             //         formData.append('interactiveVideoFile', interactiveVideoFile); // Append uploaded interactive video file
+    //             //     }
+    //             // }
+    
+    //             return Object.fromEntries(formData.entries());
+    //         });
+    //         console.log(sectionsData)
+    //             const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
+    //                 method: 'PUT',
+    //                 body: JSON.stringify({ courseSections: sectionsData })
+    //             });
+
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+
+    //             const data = await response.json();
+    //             console.log('Section data:', data);
+                
+    //             goToNextTab();
+            
+    //     } catch (error) {
+    //         console.error('Error saving course sections:', error);
+    //     }
+    // };
+
+
     const handleNext = async () => {
         if (!courseId) {
             console.error('Course ID is not defined');
             return;
         }
-
+    
         try {
-            for (let i = 0; i < sections.length; i++) {
-                const formData = new FormData();
-                const section = sections[i];
+            const formData = new FormData();
 
-                formData.append('sectionTitle', section.sectionTitle);
-                formData.append('contentType', section.contentType);
-
-                if (section.contentType === 'Blog') {
-                    const content = JSON.stringify(convertToRaw(section.editorState.getCurrentContent()));
-                    formData.append('blogContent', content);
-                    formData.append('blogCategory', blogCategory); // Include blog category
-                } else if (section.contentType === 'URL') {
-                    formData.append('contentUrl', section.contentUrl);
-                } else if (section.contentType === 'YouTube Video') {
-                    formData.append('youtubeUrl', section.youtubeUrl);
-                } else if (section.contentType === 'Uploaded Video') {
-                    if (section.uploadedFile) {
-                        formData.append('uploadedFile', section.uploadedFile);
-                    }
-                } else if (section.contentType === 'Image') {
-                    if (section.imageFile) {
-                        formData.append('imageFile', section.imageFile);
-                    }
-                } else if (section.contentType === 'Games') {
-                    formData.append('gameLink', section.gameLink);
-                } else if (section.contentType === 'Interactive Video') {
-                    if (interactiveVideoFile) {
-                        formData.append('interactiveVideoFile', interactiveVideoFile); // Append uploaded interactive video file
-                    }
-                }
-
-                const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
-                    method: 'PUT',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-                console.log('Section data:', data);
+            // Map sections to a format that the backend expects
+            const courseSections = sections.map(section => ({
+                sectionTitle: section.sectionTitle,
+                contentType: section.contentType||'',
+            }));
+    
+            console.log('Sending sections data:', courseSections);
+            formData.append('courseSections', JSON.stringify(courseSections));
+    
+            const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
+                method: 'PUT',
+                body:formData
+            });
+    
+            if (!response.ok) {
+                const errorDetails = await response.text();
+                console.error('Error response details:', errorDetails);
+                throw new Error(`Network response was not ok: ${response.statusText}`);
             }
-
+    
+            const data = await response.json();
+            console.log('Section data:', data);
+    
             goToNextTab();
+    
         } catch (error) {
             console.error('Error saving course sections:', error);
         }
     };
-
+    
+    
     const handlePrevious = () => {
         goToPreviousTab();
     };
@@ -554,7 +596,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                 onClick={() =>
                                     setCurrentQuestion({
                                         questionText: '',
-                                        options: ['', ''],
+                                        options: ['', '','',''],
                                         correctAnswer: '',
                                         startTime: '',
                                         endTime: ''
