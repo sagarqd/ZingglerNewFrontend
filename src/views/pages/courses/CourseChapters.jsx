@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+// Dummy course data for demonstration
 const demoCourse = {
     courseFullName: 'Flutter Development from Beginner to Advanced',
     chapters: [
@@ -57,8 +58,8 @@ const demoCourse = {
     ]
 };
 
-const CustomAccordion = ({ onLessonSelect }) => {
-    const { chapters } = demoCourse;
+const CourseChapters = ({ onLessonSelect }) => {
+    const { courseFullName, chapters } = demoCourse;
 
     const handleLessonClick = (lesson) => {
         onLessonSelect({
@@ -70,46 +71,6 @@ const CustomAccordion = ({ onLessonSelect }) => {
     };
 
     return (
-        <Grid item xs={12} sm={12}>
-            <Card elevation={0}>
-                <CardHeader title="Course Chapters" />
-                <Divider />
-                <CardContent>
-                    <Box>
-                        {chapters.map((chapter, index) => (
-                            <Accordion key={index}>
-                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    <Typography variant="h6">{chapter.title}</Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <List>
-                                        {chapter.lessons.map((lesson, lessonIndex) => (
-                                            <ListItem
-                                                button
-                                                key={lessonIndex}
-                                                onClick={() => handleLessonClick(lesson)}
-                                            >
-                                                <ListItemText
-                                                    primary={lesson.title}
-                                                    secondary={lesson.type === 'blog' ? 'Blog Article' : 'YouTube Video'}
-                                                />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </AccordionDetails>
-                            </Accordion>
-                        ))}
-                    </Box>
-                </CardContent>
-            </Card>
-        </Grid>
-    );
-};
-
-const CourseChapters = ({ onLessonSelect }) => {
-    const { courseFullName } = demoCourse;
-
-    return (
         <Container>
             <Typography variant="h4" gutterBottom>
                 {courseFullName}
@@ -118,7 +79,39 @@ const CourseChapters = ({ onLessonSelect }) => {
                 Course Chapters
             </Typography>
             <Grid container spacing={2}>
-                <CustomAccordion onLessonSelect={onLessonSelect} />
+                <Grid item xs={12} sm={12}>
+                    <Card elevation={0}>
+                        <CardHeader title="Course Chapters" />
+                        <Divider />
+                        <CardContent>
+                            <Box>
+                                {chapters.map((chapter, index) => (
+                                    <Accordion key={index}>
+                                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                            <Typography variant="h6">{chapter.title}</Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <List>
+                                                {chapter.lessons.map((lesson, lessonIndex) => (
+                                                    <ListItem
+                                                        button
+                                                        key={lessonIndex}
+                                                        onClick={() => handleLessonClick(lesson)}
+                                                    >
+                                                        <ListItemText
+                                                            primary={lesson.title}
+                                                            secondary={lesson.type === 'blog' ? 'Blog Article' : 'YouTube Video'}
+                                                        />
+                                                    </ListItem>
+                                                ))}
+                                            </List>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                ))}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Grid>
             </Grid>
         </Container>
     );
