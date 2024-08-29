@@ -40,7 +40,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [showVideoUploadFields, setShowVideoUploadFields] = useState(false);
     const [questionType, setQuestionType] = useState('');
     const [questionText, setQuestionText] = useState('');
-    const [options, setOptions] = useState(['', '','','']);
+    const [options, setOptions] = useState(['', '', '', '']);
     const [answers, setAnswers] = useState([]);
     const [allDay, setAllDay] = useState(false);
     const [videoFile, setVideoFile] = useState(null); // State for video file
@@ -49,14 +49,14 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [sectionNumber, setSectionNumber] = useState('');
-    
+
     const [videoId, setvideoId] = useState('');
     const [videoPreview, setVideoPreview] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
     const [selectedQuestionType, setSelectedQuestionType] = useState('');
     const [questionFields, setQuestionFields] = useState({
         questionText: '',
-        options: ['', '','',''],
+        options: ['', '', '', ''],
         correctAnswer: ''
     });
     const [startTime, setStartTime] = useState('');
@@ -81,7 +81,8 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                     const data = await response.json();
                     const fetchedNoOfSection = data.format?.noOfSection || 0;
                     setSections(
-                        Array.from({ length: fetchedNoOfSection }, () => ({
+                        Array.from({ length: fetchedNoOfSection }, (_, index) => ({
+                            sectionNumber: index + 1, // Store the index number
                             sectionTitle: '',
                             contentType: '',
                             contentUrl: '',
@@ -105,13 +106,15 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         }
     }, [courseId]);
 
+
     const handleSectionChange = (index, field, value) => {
         setSections((prevSections) => {
             const newSections = [...prevSections];
-            newSections[index] = { ...newSections[index], [field]: value };
+            newSections[index] = { ...newSections[index], [field]: value, sectionNumber: index + 1 };
             return newSections;
         });
     };
+
 
     const handleContentTypeChange = (index, event) => {
         const value = event.target.value;
@@ -154,7 +157,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         setQuestions([]);
         setCurrentQuestion({
             questionText: '',
-            options: ['', '','',''],
+            options: ['', '', '', ''],
             correctAnswer: '',
             startTime: '',
             endTime: ''
@@ -269,7 +272,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     //             const formData = new FormData();
     //             formData.append('sectionTitle', section.sectionTitle);
     //             formData.append('contentType', section.contentType);
-    
+
     //             // if (section.contentType === 'Blog') {
     //             //     const content = JSON.stringify(convertToRaw(section.editorState.getCurrentContent()));
     //             //     formData.append('blogContent', content);
@@ -293,7 +296,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     //             //         formData.append('interactiveVideoFile', interactiveVideoFile); // Append uploaded interactive video file
     //             //     }
     //             // }
-    
+
     //             return Object.fromEntries(formData.entries());
     //         });
     //         console.log(sectionsData)
@@ -308,55 +311,52 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
 
     //             const data = await response.json();
     //             console.log('Section data:', data);
-                
+
     //             goToNextTab();
-            
+
     //     } catch (error) {
     //         console.error('Error saving course sections:', error);
     //     }
     // };
-
 
     const handleNext = async () => {
         if (!courseId) {
             console.error('Course ID is not defined');
             return;
         }
-    
+
         try {
             const formData = new FormData();
 
             // Map sections to a format that the backend expects
-            const courseSections = sections.map(section => ({
+            const courseSections = sections.map((section) => ({
                 sectionTitle: section.sectionTitle,
-                contentType: section.contentType||'',
+                contentType: section.contentType || ''
             }));
-    
+
             console.log('Sending sections data:', courseSections);
             formData.append('courseSections', JSON.stringify(courseSections));
-    
+
             const response = await fetch(`http://localhost:8080/api/courses/${courseId}`, {
                 method: 'PUT',
-                body:formData
+                body: formData
             });
-    
+
             if (!response.ok) {
                 const errorDetails = await response.text();
                 console.error('Error response details:', errorDetails);
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
-    
+
             const data = await response.json();
             console.log('Section data:', data);
-    
+
             goToNextTab();
-    
         } catch (error) {
             console.error('Error saving course sections:', error);
         }
     };
-    
-    
+
     const handlePrevious = () => {
         goToPreviousTab();
     };
@@ -596,7 +596,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                 onClick={() =>
                                     setCurrentQuestion({
                                         questionText: '',
-                                        options: ['', '','',''],
+                                        options: ['', '', '', ''],
                                         correctAnswer: '',
                                         startTime: '',
                                         endTime: ''
@@ -624,73 +624,68 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                         margin="normal"
                                     />
                                     {selectedQuestionType === 'multipleChoice' && (
-                                <>
-                                    {currentQuestion.options.map((option, index) => (
-                                        <TextField
-                                            key={index}
-                                            label={`Option ${index + 1}`}
-                                            value={option}
-                                            onChange={(e) => handleOptionChange(index, e)}
-                                            fullWidth
-                                            margin="normal"
-                                        />
-                                    ))}
-                                    <FormControl component="fieldset">
-                                        {currentQuestion.options.map((option, index) => (
-                                            <FormControlLabel
-                                                key={index}
-                                                control={
-                                                    <Checkbox
-                                                        checked={currentQuestion.correctAnswer.includes(option)}
-                                                        onChange={(e) => handleCorrectAnswerChange({ target: { value: option } })}
-                                                    />
-                                                }
-                                                label={option}
-                                            />
-                                        ))}
-                                    </FormControl>
-                                </>
-                            )}
-                            {selectedQuestionType === 'singleChoice' && (
-                                <>
-                                    {currentQuestion.options.map((option, index) => (
-                                        <TextField
-                                            key={index}
-                                            label={`Option ${index + 1}`}
-                                            value={option}
-                                            onChange={(e) => handleOptionChange(index, e)}
-                                            fullWidth
-                                            margin="normal"
-                                        />
-                                    ))}
-                                    <FormControl component="fieldset">
-                                        <RadioGroup
-                                            value={currentQuestion.correctAnswer[0] || ''}
-                                            onChange={(e) => handleCorrectAnswerChange(e)}
-                                        >
+                                        <>
                                             {currentQuestion.options.map((option, index) => (
-                                                <FormControlLabel
+                                                <TextField
                                                     key={index}
+                                                    label={`Option ${index + 1}`}
                                                     value={option}
-                                                    control={<Radio />}
-                                                    label={option}
+                                                    onChange={(e) => handleOptionChange(index, e)}
+                                                    fullWidth
+                                                    margin="normal"
                                                 />
                                             ))}
-                                        </RadioGroup>
-                                    </FormControl>
-                                </>
-                            )}
-                            {selectedQuestionType === 'true/false' && (
-                                <FormControl component="fieldset">
-                                    <RadioGroup
-                                        value={currentQuestion.correctAnswer[0] || ''}
-                                        onChange={(e) => handleCorrectAnswerChange(e)}
-                                    >
-                                        <FormControlLabel value="true" control={<Radio />} label="True" />
-                                        <FormControlLabel value="false" control={<Radio />} label="False" />
-                                    </RadioGroup>
-                                </FormControl>
-                            )}
+                                            <FormControl component="fieldset">
+                                                {currentQuestion.options.map((option, index) => (
+                                                    <FormControlLabel
+                                                        key={index}
+                                                        control={
+                                                            <Checkbox
+                                                                checked={currentQuestion.correctAnswer.includes(option)}
+                                                                onChange={(e) => handleCorrectAnswerChange({ target: { value: option } })}
+                                                            />
+                                                        }
+                                                        label={option}
+                                                    />
+                                                ))}
+                                            </FormControl>
+                                        </>
+                                    )}
+                                    {selectedQuestionType === 'singleChoice' && (
+                                        <>
+                                            {currentQuestion.options.map((option, index) => (
+                                                <TextField
+                                                    key={index}
+                                                    label={`Option ${index + 1}`}
+                                                    value={option}
+                                                    onChange={(e) => handleOptionChange(index, e)}
+                                                    fullWidth
+                                                    margin="normal"
+                                                />
+                                            ))}
+                                            <FormControl component="fieldset">
+                                                <RadioGroup
+                                                    value={currentQuestion.correctAnswer[0] || ''}
+                                                    onChange={(e) => handleCorrectAnswerChange(e)}
+                                                >
+                                                    {currentQuestion.options.map((option, index) => (
+                                                        <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
+                                                    ))}
+                                                </RadioGroup>
+                                            </FormControl>
+                                        </>
+                                    )}
+                                    {selectedQuestionType === 'true/false' && (
+                                        <FormControl component="fieldset">
+                                            <RadioGroup
+                                                value={currentQuestion.correctAnswer[0] || ''}
+                                                onChange={(e) => handleCorrectAnswerChange(e)}
+                                            >
+                                                <FormControlLabel value="true" control={<Radio />} label="True" />
+                                                <FormControlLabel value="false" control={<Radio />} label="False" />
+                                            </RadioGroup>
+                                        </FormControl>
+                                    )}
                                     <TextField
                                         label="Start Time (seconds)"
                                         type="number"
