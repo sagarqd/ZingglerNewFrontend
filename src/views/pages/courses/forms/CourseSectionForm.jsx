@@ -19,6 +19,8 @@ import {
     DialogContent,
     DialogActions,
     Divider,
+    RadioGroup,
+    Radio,
     Checkbox,
     Snackbar,
     Alert
@@ -46,7 +48,8 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-    const [sectionNumber, setSectionNumber] = useState(''); ``
+    const [sectionNumber, setSectionNumber] = useState('');
+    ``;
     const [videoId, setvideoId] = useState('');
     const [videoPreview, setVideoPreview] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
@@ -65,7 +68,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         correctAnswer: [],
         startTime: '',
         endTime: '',
-        type: '',
+        type: ''
     });
 
     useEffect(() => {
@@ -184,7 +187,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         try {
             const videoResponse = await fetch('http://localhost:8080/api/video/upload', {
                 method: 'POST',
-                body: videoFormData,
+                body: videoFormData
             });
 
             if (!videoResponse.ok) {
@@ -205,7 +208,6 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             } else {
                 throw new Error('Video ID not found in response');
             }
-
         } catch (error) {
             setSnackbarMessage('Error saving video and question data');
             setSnackbarSeverity('error');
@@ -213,7 +215,6 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             console.error('Error saving video and question data:', error);
         }
     };
-
 
     const handleAddQuestion = () => {
         setQuestions([...questions, currentQuestion]);
@@ -223,7 +224,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             correctAnswer: [],
             startTime: '',
             endTime: '',
-            type: '',
+            type: ''
         });
         setSelectedQuestionType('');
     };
@@ -232,11 +233,10 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         console.log('Video Title:', videoTitle);
         console.log('Video File:', videoFile);
         console.log('Questions:', questions);
-        console.log(videoId)
+        console.log(videoId);
         try {
-
             if (videoId == '') {
-                console.log("Video is not found for uploading question")
+                console.log('Video is not found for uploading question');
                 return;
             }
             const videoQuestions = await fetch(`http://localhost:8080/api/video//questions/${videoId}`, {
@@ -245,12 +245,12 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ questions })
-            })
+            });
             if (videoQuestions.ok) {
-                console.log("Questions uploaded", videoQuestions);
+                console.log('Questions uploaded', videoQuestions);
             }
         } catch (error) {
-            console.log("Error in uploading Quesion", error)
+            console.log('Error in uploading Quesion', error);
         }
     };
 
@@ -342,7 +342,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
             ...prev,
             type: selectedType
         }));
-        setSelectedQuestionType(selectedType);  // If you need to update any other UI elements based on type
+        setSelectedQuestionType(selectedType); // If you need to update any other UI elements based on type
     };
 
     const handleQuestionTextChange = (event) => {
@@ -362,12 +362,15 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         const value = event.target.value;
         setCurrentQuestion((prev) => {
             let updatedAnswers;
-            if (prev.correctAnswer.includes(value)) {
-                // If already selected, remove it from the array
-                updatedAnswers = prev.correctAnswer.filter(answer => answer !== value);
+            if (prev.type === 'multipleChoice') {
+                if (prev.correctAnswer.includes(value)) {
+                    updatedAnswers = prev.correctAnswer.filter((answer) => answer !== value);
+                } else {
+                    updatedAnswers = [...prev.correctAnswer, value];
+                }
             } else {
-                // Otherwise, add it to the array
-                updatedAnswers = [...prev.correctAnswer, value];
+                // For single choice and true/false, we store a single-item array
+                updatedAnswers = [value];
             }
             return { ...prev, correctAnswer: updatedAnswers };
         });
@@ -377,7 +380,6 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         const { name, value } = event.target;
         setCurrentQuestion({ ...currentQuestion, [name]: value });
     };
-
 
     return (
         <>
@@ -527,31 +529,13 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                 <DialogContent>
                     {!showPreview ? (
                         <>
-                            <TextField
-                                label="Video Title"
-                                value={videoTitle}
-                                onChange={(e) => setVideoTitle(e.target.value)}
-                                fullWidth
-                            />
-                            <Button
-                                variant="contained"
-                                component="label"
-                                startIcon={<UploadIcon />}
-                                sx={{ mt: 2 }}
-                            >
+                            <TextField label="Video Title" value={videoTitle} onChange={(e) => setVideoTitle(e.target.value)} fullWidth />
+                            <Button variant="contained" component="label" startIcon={<UploadIcon />} sx={{ mt: 2 }}>
                                 Upload Video
-                                <input
-                                    type="file"
-                                    hidden
-                                    onChange={handleVideoFileChange}
-                                />
+                                <input type="file" hidden onChange={handleVideoFileChange} />
                             </Button>
                             {videoFile && !showPreview && (
-                                <Button
-                                    variant="contained"
-                                    onClick={handleVideoUpload}
-                                    sx={{ mt: 2 }}
-                                >
+                                <Button variant="contained" onClick={handleVideoUpload} sx={{ mt: 2 }}>
                                     Upload and Show Preview
                                 </Button>
                             )}
@@ -567,13 +551,15 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                             )}
                             <Button
                                 variant="contained"
-                                onClick={() => setCurrentQuestion({
-                                    questionText: '',
-                                    options: ['', ''],
-                                    correctAnswer: '',
-                                    startTime: '',
-                                    endTime: ''
-                                })}
+                                onClick={() =>
+                                    setCurrentQuestion({
+                                        questionText: '',
+                                        options: ['', ''],
+                                        correctAnswer: '',
+                                        startTime: '',
+                                        endTime: ''
+                                    })
+                                }
                                 sx={{ mt: 2 }}
                             >
                                 Add More Questions
@@ -595,56 +581,74 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                         fullWidth
                                         margin="normal"
                                     />
-                                    {selectedQuestionType !== 'trueFalse' && (
-                                        <>
+                                    {selectedQuestionType === 'multipleChoice' && (
+                                <>
+                                    {currentQuestion.options.map((option, index) => (
+                                        <TextField
+                                            key={index}
+                                            label={`Option ${index + 1}`}
+                                            value={option}
+                                            onChange={(e) => handleOptionChange(index, e)}
+                                            fullWidth
+                                            margin="normal"
+                                        />
+                                    ))}
+                                    <FormControl component="fieldset">
+                                        {currentQuestion.options.map((option, index) => (
+                                            <FormControlLabel
+                                                key={index}
+                                                control={
+                                                    <Checkbox
+                                                        checked={currentQuestion.correctAnswer.includes(option)}
+                                                        onChange={(e) => handleCorrectAnswerChange({ target: { value: option } })}
+                                                    />
+                                                }
+                                                label={option}
+                                            />
+                                        ))}
+                                    </FormControl>
+                                </>
+                            )}
+                            {selectedQuestionType === 'singleChoice' && (
+                                <>
+                                    {currentQuestion.options.map((option, index) => (
+                                        <TextField
+                                            key={index}
+                                            label={`Option ${index + 1}`}
+                                            value={option}
+                                            onChange={(e) => handleOptionChange(index, e)}
+                                            fullWidth
+                                            margin="normal"
+                                        />
+                                    ))}
+                                    <FormControl component="fieldset">
+                                        <RadioGroup
+                                            value={currentQuestion.correctAnswer[0] || ''}
+                                            onChange={(e) => handleCorrectAnswerChange(e)}
+                                        >
                                             {currentQuestion.options.map((option, index) => (
-                                                <TextField
+                                                <FormControlLabel
                                                     key={index}
-                                                    label={`Option ${index + 1}`}
                                                     value={option}
-                                                    onChange={(e) => handleOptionChange(index, e)}
-                                                    fullWidth
-                                                    margin="normal"
+                                                    control={<Radio />}
+                                                    label={option}
                                                 />
                                             ))}
-                                            <FormControl component="fieldset">
-                                                {currentQuestion.options.map((option, index) => (
-                                                    <FormControlLabel
-                                                        key={index}
-                                                        control={
-                                                            <Checkbox
-                                                                checked={currentQuestion.correctAnswer.includes(option)}
-                                                                onChange={(e) => handleCorrectAnswerChange({ target: { value: option } })}
-                                                            />
-                                                        }
-                                                        label={option}
-                                                    />
-                                                ))}
-                                            </FormControl>
-                                        </>
-                                    )}
-                                    {selectedQuestionType === 'trueFalse' && (
-                                        <FormControl component="fieldset">
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={currentQuestion.correctAnswer === 'true'}
-                                                        onChange={(e) => handleCorrectAnswerChange({ target: { value: 'true' } })}
-                                                    />
-                                                }
-                                                label="True"
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={currentQuestion.correctAnswer === 'false'}
-                                                        onChange={(e) => handleCorrectAnswerChange({ target: { value: 'false' } })}
-                                                    />
-                                                }
-                                                label="False"
-                                            />
-                                        </FormControl>
-                                    )}
+                                        </RadioGroup>
+                                    </FormControl>
+                                </>
+                            )}
+                            {selectedQuestionType === 'trueFalse' && (
+                                <FormControl component="fieldset">
+                                    <RadioGroup
+                                        value={currentQuestion.correctAnswer[0] || ''}
+                                        onChange={(e) => handleCorrectAnswerChange(e)}
+                                    >
+                                        <FormControlLabel value="true" control={<Radio />} label="True" />
+                                        <FormControlLabel value="false" control={<Radio />} label="False" />
+                                    </RadioGroup>
+                                </FormControl>
+                            )}
                                     <TextField
                                         label="Start Time (seconds)"
                                         type="number"
@@ -663,11 +667,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                         fullWidth
                                         margin="normal"
                                     />
-                                    <Button
-                                        variant="contained"
-                                        onClick={handleAddQuestion}
-                                        sx={{ mt: 2 }}
-                                    >
+                                    <Button variant="contained" onClick={handleAddQuestion} sx={{ mt: 2 }}>
                                         Save Question
                                     </Button>
                                 </>
@@ -680,16 +680,13 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                             <Typography variant="subtitle1">Question {index + 1}:</Typography>
                                             <Typography variant="body2">Text: {q.questionText}</Typography>
                                             <Typography variant="body2">Options: {q.options.join(', ')}</Typography>
-                                            <Typography variant="body2">Correct Answer(s): {q.correctAnswer.join(', ')}</Typography>  {/* Updated to handle array */}
+                                            <Typography variant="body2">Correct Answer(s): {q.correctAnswer.join(', ')}</Typography>{' '}
+                                            {/* Updated to handle array */}
                                             <Typography variant="body2">Start Time: {q.startTime}</Typography>
                                             <Typography variant="body2">End Time: {q.endTime}</Typography>
                                         </Box>
                                     ))}
-                                    <Button
-                                        variant="contained"
-                                        onClick={handleSubmit}
-                                        sx={{ mt: 2 }}
-                                    >
+                                    <Button variant="contained" onClick={handleSubmit} sx={{ mt: 2 }}>
                                         Submit All Data
                                     </Button>
                                 </Box>
