@@ -49,6 +49,8 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [sectionNumber, setSectionNumber] = useState('');
+    const [selectedSectionIndex, setSelectedSectionIndex] = useState(null);
+
     
     const [videoId, setvideoId] = useState('');
     const [videoPreview, setVideoPreview] = useState(null);
@@ -144,7 +146,8 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         handleSectionChange(index, 'imageFile', event.target.files[0]);
     };
 
-    const handleModalOpen = () => {
+    const handleModalOpen = (index) => {
+        setSelectedSectionIndex(index+1);
         setModalOpen(true);
     };
 
@@ -181,8 +184,9 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
         const videoFormData = new FormData();
         videoFormData.append('file', videoFile);
         videoFormData.append('title', videoTitle);
-        videoFormData.append('sectionNumber', noOfSection);
+        videoFormData.append('sectionNumber', selectedSectionIndex );
         videoFormData.append('courseId', courseId);
+        console.log(selectedSectionIndex)
 
         try {
             const videoResponse = await fetch('http://localhost:8080/api/video/upload', {
@@ -240,7 +244,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                 return;
             }
             const videoQuestions = await fetch(`http://localhost:8080/api/video//questions/${videoId}`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -544,7 +548,7 @@ const CourseSectionForm = ({ goToNextTab, goToPreviousTab, courseId, noOfSection
                                                 variant="contained"
                                                 color="secondary"
                                                 startIcon={<UploadIcon />}
-                                                onClick={handleModalOpen}
+                                                onClick={()=>handleModalOpen(index)}
                                             >
                                                 Upload
                                             </Button>
