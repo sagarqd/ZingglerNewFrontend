@@ -35,6 +35,7 @@ import ColorTablet from 'webgl/index';
 import Whiteboard from 'views/pages/whiteboard/Whiteboard';
 import SamplePage from 'views/sample-page';
 import Homepage from 'views/pages/Homepage/Homepage';
+import AddNewStudents from 'views/pages/student/AddNewStudents';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -132,6 +133,16 @@ const MainRoutes = {
         },
       ]
     },
+    {
+      path: 'students',
+      element: <MainLayout />,
+      children: [
+          {
+              path: 'add-new',
+              element: <AddNewStudents />
+          }
+      ]
+  },
     {
       path: 'meetings',
       element: <MainLayout />,

@@ -104,6 +104,12 @@ const pages = {
       icon: icons.IconUser,
       children: [
         {
+          id: 'add-new-student',
+          title: 'Add New Student',
+          type: 'item',
+          url: '/students/add-new',
+        },
+        {
           id: 'student-list',
           title: 'Student List',
           type: 'item',
