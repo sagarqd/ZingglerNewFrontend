@@ -37,6 +37,7 @@ import Whiteboard from 'views/pages/whiteboard/Whiteboard';
 import SamplePage from 'views/sample-page';
 import Homepage from 'views/pages/Homepage/Homepage';
 import AddNewStudents from 'views/pages/student/AddNewStudents';
+import CourseEnroll from 'views/pages/courses/CourseEnroll';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -189,7 +190,12 @@ const MainRoutes = {
               {
                   path: '/courses/:slug/:_id',
                   element: <CourseDetails />
-              }
+              },
+              {
+                path: 'enroll',
+                element: <CourseEnroll />
+            }
+
           ]
         },
         {

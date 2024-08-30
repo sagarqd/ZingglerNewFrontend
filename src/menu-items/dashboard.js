@@ -4,22 +4,46 @@ import { IconDashboard } from '@tabler/icons-react';
 // constant
 const icons = { IconDashboard };
 
-// ==============================|| DASHBOARD MENU ITEMS ||============================== //
+// ==============================|| ADMIN DASHBOARD MENU ITEMS ||============================== //
 
-const dashboard = {
-  id: 'dashboard',
-  title: 'Dashboard',
+const adminDashboard = {
+  id: 'admin-dashboard',
+  title: 'Admin Dashboard',
   type: 'group',
   children: [
     {
-      id: 'default',
-      title: 'Dashboard',
+      id: 'overview',
+      title: 'Overview',
       type: 'item',
-      url: '/dashboard/default',
+      url: '/admin-dashboard/overview',
       icon: icons.IconDashboard,
       breadcrumbs: false
     }
   ]
 };
 
-export default dashboard;
+// ==============================|| STUDENT DASHBOARD MENU ITEMS ||============================== //
+
+const studentDashboard = {
+  id: 'student-dashboard',
+  title: 'Student Dashboard',
+  type: 'group',
+  children: [
+    {
+      id: 'overview',
+      title: 'Overview',
+      type: 'item',
+      url: '/student-dashboard/overview',
+      icon: icons.IconDashboard,
+      breadcrumbs: false
+    }
+  ]
+};
+
+// ==============================|| EXPORT DASHBOARD ITEMS ||============================== //
+
+const getDashboardForUserType = (userType) => {
+  return userType === 'student' ? studentDashboard : adminDashboard;
+};
+
+export default getDashboardForUserType;

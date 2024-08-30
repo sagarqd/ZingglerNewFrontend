@@ -35,7 +35,7 @@ import StorefrontTwoToneIcon from '@mui/icons-material/StorefrontTwoTone';
 const StudentDashboardOverview = () => {
     const [isLoading, setLoading] = useState(true);
     const today = dayjs(); // Get today's date
-    const [selectedDate, setSelectedDate] = useState(today); // Initialize with today's date
+    const [selectedDate, setSelectedDate] = useState(today);
     const [events, setEvents] = useState([
         // Your initial events here
     ]);
