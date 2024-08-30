@@ -7,6 +7,7 @@ import { BasicTabs } from 'views/pages/courses/forms/NewCourse';
 
 // Import all components directly
 import DashboardDefault from 'views/dashboard';
+import StudentDashboardOverview from 'views/student-dashboard/Overview';
 import AuthRegister from 'views/pages/authentication3/Register';
 import UtilsTypography from 'views/utilities/Typography';
 import UtilsColor from 'views/utilities/Color';
@@ -36,160 +37,224 @@ import Whiteboard from 'views/pages/whiteboard/Whiteboard';
 import SamplePage from 'views/sample-page';
 import Homepage from 'views/pages/Homepage/Homepage';
 import AddNewStudents from 'views/pages/student/AddNewStudents';
+import CourseEnroll from 'views/pages/courses/CourseEnroll';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
-  path: '/',
-  children: [
-    {
-      path: '/',
-      element: <AuthRegister />
-    },
-    {
-      path: 'dashboard',
-      element: <MainLayout />,
-      children: [
+    path: '/',
+    children: [
         {
-          path: 'default',
-          element: <DashboardDefault />
+            path: '/',
+            element: <AuthRegister />
+        },
+        {
+            path: 'dashboard',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'default',
+                    element: <DashboardDefault />
+                }
+            ]
+        },
+        {
+          path: 'student-dashboard',
+          element: <MainLayout />,
+          children: [
+            {
+              path: 'overview',
+              element: <StudentDashboardOverview />
+            }
+          ]
+        },
+        {
+            path: 'utils',
+            children: [
+                {
+                    path: 'util-typography',
+                    element: <UtilsTypography />
+                },
+                {
+                    path: 'util-color',
+                    element: <UtilsColor />
+                },
+                {
+                    path: 'util-shadow',
+                    element: <UtilsShadow />
+                }
+            ]
+        },
+        {
+            path: 'sample-page',
+            element: <SamplePage />
+        },
+        {
+            path: 'users',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'list',
+                    element: <UserList />
+                },
+                {
+                    path: 'group',
+                    element: <UserGroup />
+                },
+                {
+                    path: 'profile',
+                    element: <Profile />
+                },
+                {
+                    path: 'profile/edit',
+                    element: <ProfileEdit />
+                },
+                {
+                    path: 'user-permissions',
+                    element: <UserPermissions />
+                }
+            ]
+        },
+        {
+            path: 'courses',
+            element: <MainLayout />,
+            children: [
+              {
+                  path: 'course-list',
+                  element: <ListView />
+              },
+              {
+                  path: 'course-grid',
+                  element: <GridView />
+              },
+              {
+                path: 'new-course/:tab?',
+                element: <NewCourse />
+              },
+              {
+                  path: 'new-course/general',
+                  element: <NewCourse initialTab="general" />
+              },
+              {
+                  path: 'new-course/description',
+                  element: <NewCourse initialTab="description" />
+              },
+              {
+                  path: 'new-course/course-format',
+                  element: <NewCourse initialTab="course-format" />
+              },
+              {
+                  path: 'new-course/section',
+                  element: <NewCourse initialTab="section" />
+              },
+              {
+                  path: 'new-course/appearance',
+                  element: <NewCourse initialTab="appearance" />
+              },
+              {
+                  path: 'new-course/completion',
+                  element: <NewCourse initialTab="completion" />
+              },
+              {
+                  path: 'new-course/groups',
+                  element: <NewCourse initialTab="groups" />
+              },
+              {
+                  path: ':slug/general',
+                  element: <NewCourse />
+              },
+              {
+                  path: ':slug/description',
+                  element: <NewCourse />
+              },
+              {
+                  path: ':slug/course-format',
+                  element: <NewCourse />
+              },
+              {
+                  path: ':slug/section',
+                  element: <NewCourse />
+              },
+              {
+                  path: ':slug/appearance',
+                  element: <NewCourse />
+              },
+              {
+                  path: ':slug/completion',
+                  element: <NewCourse />
+              },
+              {
+                  path: ':slug/groups',
+                  element: <NewCourse />
+              },
+              {
+                  path: '/courses/:slug/:_id',
+                  element: <CourseDetails />
+              },
+              {
+                path: 'enroll',
+                element: <CourseEnroll />
+            }
+
+          ]
+        },
+        {
+            path: 'students',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'add-new',
+                    element: <AddNewStudents />
+                }
+            ]
+        },
+        {
+            path: 'meetings',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'new-meeting',
+                    element: <NewMeeting />
+                },
+                {
+                    path: 'meeting-history',
+                    element: <MeetingHistory />
+                },
+                {
+                    path: ':roomId',
+                    element: <RoomPage />
+                },
+                {
+                    path: 'meeting-layout',
+                    element: <MeetingLayout />
+                }
+            ]
+        },
+        {
+            path: 'games',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'color-tablet',
+                    element: <ColorTablet />
+                }
+            ]
+        },
+        {
+            path: 'tools',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'whiteboard',
+                    element: <Whiteboard />
+                }
+            ]
+        },
+        {
+            path: 'home',
+            element: <Homepage />
         }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-typography',
-          element: <UtilsTypography />
-        },
-        {
-          path: 'util-color',
-          element: <UtilsColor />
-        },
-        {
-          path: 'util-shadow',
-          element: <UtilsShadow />
-        }
-      ]
-    },
-    {
-      path: 'sample-page',
-      element: <SamplePage />
-    },
-    {
-      path: 'users',
-      element: <MainLayout />,
-      children: [
-        {
-          path: 'list',
-          element: <UserList />
-        },
-        {
-          path: 'group',
-          element: <UserGroup />
-        },
-        {
-          path: 'profile',
-          element: <Profile />
-        },
-        {
-          path: 'profile/edit',
-          element: <ProfileEdit />
-        },
-        {
-          path: 'user-permissions',
-          element: <UserPermissions />
-        }
-      ]
-    },
-    {
-      path: 'courses',
-      element: <MainLayout />,
-      children: [
-        {
-          path: 'course-list',
-          element: <ListView />
-        },
-        {
-          path: 'course-grid',
-          element: <GridView />
-        },
-        {
-          path: '/courses/:slug/:_id',
-          element: <CourseDetails />
-        },
-        {
-          path: 'new-course/:tab?',
-          element: <NewCourse />
-        },
-        {
-          path: ':slug/:tab',
-          element: <NewCourse />
-        },
-        {
-          path: 'view-course',
-          element: <CourseView />
-        },
-      ]
-    },
-    {
-      path: 'students',
-      element: <MainLayout />,
-      children: [
-          {
-              path: 'add-new',
-              element: <AddNewStudents />
-          }
-      ]
-  },
-    {
-      path: 'meetings',
-      element: <MainLayout />,
-      children: [
-        {
-          path: 'new-meeting',
-          element: <NewMeeting />
-        },
-        {
-          path: 'meeting-history',
-          element: <MeetingHistory />
-        },
-        {
-          path: ':roomId',
-          element: <RoomPage />
-        },
-        {
-          path: 'meeting-layout',
-          element: <MeetingLayout />
-        }
-      ]
-    },
-    {
-      path: 'games',
-      element: <MainLayout />,
-      children: [
-        {
-          path: 'color-tablet',
-          element: <ColorTablet />
-        }
-      ]
-    },
-    {
-      path: 'tools',
-      element: <MainLayout />,
-      children: [
-        {
-          path: 'whiteboard',
-          element: <Whiteboard />
-        }
-      ]
-    },
-    {
-      path: 'home',
-      element:<Homepage/>
-    }
-  ]
+    ]
 };
 
 export default MainRoutes;

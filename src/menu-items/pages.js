@@ -1,24 +1,32 @@
 // assets
-import { IconKey, IconUsers, IconUser, IconBook, IconChalkboard, IconBuilding, IconCash, IconCalendar, IconDeviceGamepad2, IconCalendarStats } from '@tabler/icons-react';
-
-// constant
-const icons = {
-  IconKey,
+import {
   IconUsers,
   IconUser,
   IconBook,
-  IconChalkboard,  // Placeholder for teachers
-  IconUser,        // Placeholder for students
-  IconCash,        // Placeholder for payments
-  IconCalendar,    // Placeholder for attendance
+  IconChalkboard,
+  IconBuilding,
+  IconCash,
+  IconCalendar,
+  IconDeviceGamepad2,
+  IconCalendarStats
+} from '@tabler/icons-react';
+
+// constant
+const icons = {
+  IconUsers,
+  IconUser,
+  IconBook,
+  IconChalkboard,
+  IconCash,
+  IconCalendar,
   IconBuilding,
   IconDeviceGamepad2,
   IconCalendarStats
 };
 
-// ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
+// ==============================|| ADMIN PAGES MENU ITEMS ||============================== //
 
-const pages = {
+const adminPages = {
   id: 'pages',
   type: 'group',
   children: [
@@ -32,23 +40,22 @@ const pages = {
           id: 'user-list',
           title: 'User List',
           type: 'item',
-          url: '/users/list',
+          url: '/users/list'
         },
         {
           id: 'user-group',
           title: 'User Group',
           type: 'item',
-          url: '/users/group',
+          url: '/users/group'
         },
         {
           id: 'user-permissions',
           title: 'User Permissions',
           type: 'item',
-          url: '/users/user-permissions',
+          url: '/users/user-permissions'
         }
       ]
     },
-
     {
       id: 'courses',
       title: 'Courses',
@@ -59,23 +66,22 @@ const pages = {
           id: 'course-list',
           title: 'Course List',
           type: 'item',
-          url: '/courses/course-list',
+          url: '/courses/course-list'
         },
         {
           id: 'course-grid',
           title: 'Course Grid',
           type: 'item',
-          url: '/courses/course-grid',
+          url: '/courses/course-grid'
         },
         {
           id: 'new-course',
           title: 'Add New Course',
           type: 'item',
-          url: '/courses/new-course',
-        },
+          url: '/courses/new-course'
+        }
       ]
     },
-
     {
       id: 'teachers',
       title: 'Teachers',
@@ -86,17 +92,16 @@ const pages = {
           id: 'teacher-list',
           title: 'Teacher List',
           type: 'item',
-          url: '/teachers/teacher-list',
+          url: '/teachers/teacher-list'
         },
         {
           id: 'teacher-profile',
           title: 'Teacher Profile',
           type: 'item',
-          url: '/teachers/teacher-profile',
+          url: '/teachers/teacher-profile'
         }
       ]
     },
-
     {
       id: 'students',
       title: 'Students',
@@ -107,23 +112,22 @@ const pages = {
           id: 'add-new-student',
           title: 'Add New Student',
           type: 'item',
-          url: '/students/add-new',
+          url: '/students/add-new'
         },
         {
           id: 'student-list',
           title: 'Student List',
           type: 'item',
-          url: '/students/student-list',
+          url: '/students/student-list'
         },
         {
           id: 'student-profile',
           title: 'Student Profile',
           type: 'item',
-          url: '/students/student-profile',
+          url: '/students/student-profile'
         }
       ]
     },
-
     {
       id: 'payments',
       title: 'Payments',
@@ -134,17 +138,16 @@ const pages = {
           id: 'payment-history',
           title: 'Payment History',
           type: 'item',
-          url: '/payments/payment-history',
+          url: '/payments/payment-history'
         },
         {
           id: 'payment-summary',
           title: 'Payment Summary',
           type: 'item',
-          url: '/payments/payment-summary',
+          url: '/payments/payment-summary'
         }
       ]
     },
-
     {
       id: 'attendance',
       title: 'Attendance',
@@ -155,17 +158,16 @@ const pages = {
           id: 'attendance-list',
           title: 'Attendance List',
           type: 'item',
-          url: '/attendance/attendance-list',
+          url: '/attendance/attendance-list'
         },
         {
           id: 'attendance-report',
           title: 'Attendance Report',
           type: 'item',
-          url: '/attendance/attendance-report',
+          url: '/attendance/attendance-report'
         }
       ]
     },
-
     {
       id: 'departments',
       title: 'Departments',
@@ -176,13 +178,13 @@ const pages = {
           id: 'department-list',
           title: 'Department List',
           type: 'item',
-          url: '/departments/department-list',
+          url: '/departments/department-list'
         },
         {
           id: 'department-profile',
           title: 'Department Profile',
           type: 'item',
-          url: '/departments/department-profile',
+          url: '/departments/department-profile'
         }
       ]
     },
@@ -196,13 +198,13 @@ const pages = {
           id: 'new-meeting',
           title: 'New Meeting',
           type: 'item',
-          url: '/meetings/new-meeting',
+          url: '/meetings/new-meeting'
         },
         {
           id: 'meeting-history',
           title: 'Meeting History',
           type: 'item',
-          url: '/meetings/meeting-history',
+          url: '/meetings/meeting-history'
         }
       ]
     },
@@ -223,4 +225,33 @@ const pages = {
   ]
 };
 
-export default pages;
+// ==============================|| STUDENT PAGES MENU ITEMS ||============================== //
+
+const studentPages = {
+  id: 'pages',
+  type: 'group',
+  children: [
+    {
+      id: 'my-courses',
+      title: 'My Courses',
+      type: 'collapse',
+      icon: icons.IconBook,
+      children: [
+        {
+          id: 'my-course-list',
+          title: 'My Course List',
+          type: 'item',
+          url: '/courses/my-course-list'
+        }
+      ]
+    }
+  ]
+};
+
+// ==============================|| EXPORT PAGES ITEMS ||============================== //
+
+const getPagesForUserType = (userType) => {
+  return userType === 'student' ? studentPages : adminPages;
+};
+
+export default getPagesForUserType;
