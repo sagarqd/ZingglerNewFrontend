@@ -20,43 +20,53 @@ import {
     CardContent,
     Divider
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const CourseEnroll = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Extract courseId from state
+    const courseId = location.state?.courseId; // Use optional chaining to handle cases where state might be undefined
+
+    console.log('Course ID from state:', courseId);
+
     const [students, setStudents] = useState([]);
     const [courses, setCourses] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
-    const [selectedCourse, setSelectedCourse] = useState('');
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
-    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch students
-                const studentsResponse = await axios.get('http://localhost:8080/api/student/student-list');
-                console.log('Fetched students data:', studentsResponse.data);
-                setStudents(studentsResponse.data);
+        if (courseId) {
+            const fetchData = async () => {
+                try {
+                    // Fetch students
+                    const studentsResponse = await axios.get('http://localhost:8080/api/student/student-list');
+                    console.log('Fetched students data:', studentsResponse.data);
+                    setStudents(studentsResponse.data);
 
-                // Fetch courses
-                const coursesResponse = await axios.get('http://localhost:8080/api/courses');
-                console.log('Fetched courses data:', coursesResponse.data);
-                setCourses(coursesResponse.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
+                    // Fetch specific course by ID
+                    const coursesResponse = await axios.get(`http://localhost:8080/api/courses/${courseId}`);
+                    console.log('Fetched course data:', coursesResponse.data);
+                    setCourses(coursesResponse.data);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchData();
+        } else {
+            console.error('No course ID provided');
+        }
+    }, [courseId]);
 
     const handleEnroll = async () => {
         try {
             await axios.post('http://localhost:8080/api/student/enroll', {
                 studentId: selectedStudent,
-                courseId: selectedCourse
+                courseId: courseId
             });
             alert('Student enrolled successfully');
             // Update student status locally

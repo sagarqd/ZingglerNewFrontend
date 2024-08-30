@@ -70,10 +70,16 @@ const CourseCard = ({ course, handleClick, setLoading, setCourses, courses }) =>
         setSelectedIndex(index);
         setOpen(false); // Close the menu
 
+        console.log('Course Data:', course); // Check the course object
+
         // Handle different actions based on the selected index
         if (index === 0) {
             // Navigate to the course detail page
-            navigate(`/courses/${course.slug}/${course._id}`);
+            if (course.slug) {
+                navigate(`/courses/${course.slug}`);
+            } else {
+                console.error('Course slug is missing');
+            }
         } else if (index === 1) {
             // Handle edit action
             handleEdit();
@@ -82,9 +88,17 @@ const CourseCard = ({ course, handleClick, setLoading, setCourses, courses }) =>
             handleDeleteClick();
         } else if (options[index].text === 'Enroll Students') {
             // Navigate to the Enroll Students page
-            navigate('courses/enroll');
+            if (course._id) {
+                navigate(`/courses/enroll`, { state: { courseId: course._id } });
+                console.log('Navigating to Enroll Students with Course ID:', course._id);
+            } else {
+                console.error('Course ID is missing');
+            }
         }
     };
+
+
+
 
     const handleToggle = () => {
         setOpen((prevOpen) => !prevOpen);
