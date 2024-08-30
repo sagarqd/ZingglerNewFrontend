@@ -35,7 +35,7 @@ const CourseEnroll = () => {
         const fetchData = async () => {
             try {
                 // Fetch students
-                const studentsResponse = await axios.get('http://localhost:8080/api/students');
+                const studentsResponse = await axios.get('http://localhost:8080/api/student/student-list');
                 console.log('Fetched students data:', studentsResponse.data);
                 setStudents(studentsResponse.data);
 
@@ -53,12 +53,8 @@ const CourseEnroll = () => {
     }, []);
 
     const handleEnroll = async () => {
-        if (!selectedCourse) {
-            alert('Please select a course');
-            return;
-        }
         try {
-            await axios.post('http://localhost:8080/api/enroll', {
+            await axios.post('http://localhost:8080/api/student/enroll', {
                 studentId: selectedStudent,
                 courseId: selectedCourse
             });
@@ -141,15 +137,6 @@ const CourseEnroll = () => {
                     <Typography variant="body1">
                         Are you sure you want to enroll this student in the course?
                     </Typography>
-                    <Box sx={{ marginTop: 2 }}>
-                        <Typography variant="body2">Select Course:</Typography>
-                        <select onChange={(e) => setSelectedCourse(e.target.value)} value={selectedCourse}>
-                            <option value="" disabled>Select a course</option>
-                            {courses.map((course) => (
-                                <option key={course._id} value={course._id}>{course.name}</option>
-                            ))}
-                        </select>
-                    </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} color="primary">
