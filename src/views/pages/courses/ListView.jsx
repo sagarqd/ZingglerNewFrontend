@@ -82,7 +82,7 @@ const CourseCard = ({ course, handleClick, setLoading, setCourses, courses }) =>
             handleDeleteClick();
         } else if (options[index].text === 'Enroll Students') {
             // Navigate to the Enroll Students page
-            navigate('/enroll');
+            navigate('courses/enroll');
         }
     };
 
