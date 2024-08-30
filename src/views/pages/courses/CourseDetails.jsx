@@ -18,23 +18,20 @@ import {
     TextField,
     DialogActions,
     Button,
-    Select
+    Select,
+    CardHeader,
+    Divider,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    List, ListItem, ListItemText,
+    FormControl, FormGroup, FormControlLabel, Radio, RadioGroup, Checkbox
 } from '@mui/material';
 import ReactPlayer from 'react-player';
 import { useParams } from 'react-router-dom';
-import {
-    PlayArrow,
-    Pause,
-    VolumeUp,
-    VolumeOff,
-    Fullscreen,
-    FullscreenExit,
-    Replay10,
-    Forward10,
-    PictureInPictureAlt,
-    Settings
-} from '@mui/icons-material';
-import CourseChapters from './CourseChapters';
+
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+
 
 const CourseDetails = () => {
     const [videoSrc, setVideoSrc] = useState('');
@@ -42,93 +39,83 @@ const CourseDetails = () => {
     const [error, setError] = useState('');
     const [course, setCourse] = useState(null);
     const [playing, setPlaying] = useState(false);
-    const [volume, setVolume] = useState(0.8);
-    const [isMuted, setIsMuted] = useState(false);
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    const [pip, setPip] = useState(false);
     const [quality, setQuality] = useState('720p');
     const [anchorEl, setAnchorEl] = useState(null);
     const [showControls, setShowControls] = useState(true);
     const [played, setPlayed] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [seekValue, setSeekValue] = useState(0);
-    const [showPopup5Sec, setShowPopup5Sec] = useState(false);
-    const [showPopup25Sec, setShowPopup25Sec] = useState(false);
-    const [currentQuestion, setCurrentQuestion] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
-    const [selectedLesson, setSelectedLesson] = useState(null);
+    const [selectedLesson, setSelectedLesson] = useState([]);
     const playerRef = useRef(null);
     const playerContainerRef = useRef(null);
+    const [videoData, setVideoData] = useState([]);
+    const [courseSection, setCourseSection] = useState([])
+    const [questions, setQuestions] = useState([]);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [showButton, setShowButton] = useState(false);
+    const [showPopUp, setShowPopUp] = useState(false)
+    const [showModal, setShowModal] = useState(false);
+    const [selectedAnswers, setSelectedAnswers] = useState([]);
+    const [currentQuestion, setCurrentQuestion] = useState(null);
+    const [feedback, setFeedback] = useState('');
+
     const { slug } = useParams();
-  const { _id } = useParams();
+    const { _id } = useParams();
 
     useEffect(() => {
-        const fetchCourse = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/courses/${slug}`);
-                if (!response.ok) {
+                // Fetch course data
+                const courseResponse = await fetch(`http://localhost:8080/api/courses/slug/${slug}`);
+                if (!courseResponse.ok) {
                     throw new Error('Network response was not ok');
                 }
-                const contentType = response.headers.get('Content-Type');
-                if (!contentType || !contentType.includes('application/json')) {
+                const courseContentType = courseResponse.headers.get('Content-Type');
+                if (!courseContentType || !courseContentType.includes('application/json')) {
                     throw new Error('Expected JSON response');
                 }
-                const data = await response.json();
-                setCourse(data);
+                const courseData = await courseResponse.json();
+                setCourse(courseData);
+                setCourseSection(courseData.courseSections);
 
-                if (data.courseVideo && data.courseVideo !== 'Not available') {
-                    const videoUrl = `http://localhost:8080${data.courseVideo}`;
+                // Fetch video data
+                const videoResponse = await fetch(`http://localhost:8080/api/video/fetchByCourseId/${courseData._id}`);
+                if (!videoResponse.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const videoContentType = videoResponse.headers.get('Content-Type');
+                if (!videoContentType || !videoContentType.includes('application/json')) {
+                    throw new Error('Expected JSON response');
+                }
+                const videoDetailsofArray = await videoResponse.json();
+                setVideoData(videoDetailsofArray.video);
+
+                // Set video source if available
+                if (courseData.courseVideo && courseData.courseVideo !== 'Not available') {
+                    const videoUrl = `http://localhost:8080${courseData.courseVideo}`;
                     setVideoSrc(videoUrl);
                 } else {
                     setError('Invalid video path in course data');
                 }
             } catch (error) {
-                console.error('Error fetching course data:', error);
-                setError('Failed to load course data.');
+                console.error('Error fetching data:', error);
+                setError('Failed to load data.');
             }
         };
 
-        fetchCourse();
+        if (slug) {
+            fetchData();
+        }
     }, [slug]);
 
     const handlePlayPause = () => {
         setPlaying(!playing);
     };
 
-    const handleSeek = (seconds) => {
-        playerRef.current.seekTo(playerRef.current.getCurrentTime() + seconds, 'seconds');
-    };
-
-    const handleVolumeChange = (event, newValue) => {
-        setVolume(newValue / 100);
-        setIsMuted(newValue === 0);
-    };
-
-    const handleToggleMute = () => {
-        setIsMuted(!isMuted);
-    };
-
-    const handleToggleFullscreen = () => {
-        if (isFullscreen) {
-            document.exitFullscreen();
-        } else {
-            playerContainerRef.current.requestFullscreen();
-        }
-        setIsFullscreen(!isFullscreen);
-    };
-
-    const handleTogglePip = () => {
-        setPip(!pip);
-    };
-
     const handleQualityChange = (event) => {
         const newQuality = event.target.getAttribute('data-quality');
         setQuality(newQuality);
         setAnchorEl(null);
-    };
-
-    const handleSettingsClick = (event) => {
-        setAnchorEl(event.currentTarget);
     };
 
     const handleCloseSettingsMenu = () => {
@@ -138,28 +125,11 @@ const CourseDetails = () => {
     const handleCloseSnackbar = () => {
         setOpenSnackbar(false);
     };
-
-    const handleProgress = (state) => {
-        setPlayed(state.playedSeconds);
-        setSeekValue(state.duration > 0 ? (state.playedSeconds / state.duration) * 100 : 0);
-
-        if (state.duration > 0 && duration !== state.duration) {
-            setDuration(state.duration);
-        }
-
-        // Check if a question should be shown at the current time
-        const question = questions.find((q) => Math.abs(q.time - state.playedSeconds) < 1);
-        if (question && currentQuestion !== question) {
-            setCurrentQuestion(question);
-            setShowDialog(true);
-            setPlaying(false); // Pause the video when showing a question
-        }
+    const handleTimeUpdate = (state) => {
+        setCurrentTime(state.playedSeconds);
     };
-
-    const handleSeekChange = (event, newValue) => {
-        setSeekValue(newValue);
-        const newTime = (newValue / 100) * duration;
-        playerRef.current.seekTo(newTime, 'seconds');
+    const handleDuration = (duration) => {
+        setDuration(duration);
     };
 
     const handleMouseMove = () => {
@@ -172,34 +142,103 @@ const CourseDetails = () => {
         handlePlayPause();
     };
 
-    const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-    };
-
     const qualityOptions = ['144p', '360p', '480p', '720p', '1080p'];
 
-    const handleAddQuestions = (newQuestions) => {
-        setQuestions(newQuestions);
-        setShowDialog(false);
-    };
 
-    const handleLessonSelect = (lesson) => {
-        setSelectedLesson(lesson);
-        if (lesson.type === 'youtube') {
-            setVideoSrc(lesson.url);
+    const handleLessonClick = async (_id, sectionNumber, type) => {
+        const videoDetails = await fetch(`http://localhost:8080/api/video/fetchVideoBySection/${_id}/${sectionNumber}`);
+        if (!videoDetails.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const videoByLesson = await videoDetails.json();
+        setSelectedLesson(videoByLesson.video)
+        setQuestions(videoByLesson.video.questions)
+        if (type === 'Interactive Video') {
+            setVideoSrc(`http://localhost:8080/uploads/${selectedLesson.filename}`);
         } else {
             setVideoSrc(null);
         }
+    }
+    useEffect(() => {
+        const activePopup = questions.find(({ startTime, endTime }) => {
+            return currentTime >= startTime && currentTime <= endTime;
+        });
+        if (activePopup) {
+            setShowButton(true);
+            setCurrentQuestion(activePopup.question);
+        } else {
+            setShowButton(false);
+            setCurrentQuestion(null);
+        }
+    }, [currentTime, questions]);
+
+    const handleClick = () => {
+        const player = playerRef.current.getInternalPlayer(); // Access the internal player
+        if (player) {
+            player.pause(); // Pause the video
+        }
+        setShowPopUp(false); // Hide the popup button
+        setShowModal(true); // Show the modal
     };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setShowButton(false)
+        setCurrentQuestion(null);
+        setSelectedAnswers([]);
+    };
+
+    const handleOptionChange = (event) => {
+        setSelectedAnswers(event.target.value);
+    };
+    const handleCheckboxChange = (event) => {
+        const { value, checked } = event.target;
+        setSelectedAnswers(prev =>
+            checked ? [...prev, value] : prev.filter(answer => answer !== value)
+        );
+    };
+    const handleSubmit = () => {
+        // Helper function to compare single value or arrays
+        const isCorrectAnswer = (selected, correct) => {
+            if (Array.isArray(correct)) {
+                // Convert single selectedAnswer to array for comparison
+                const selectedArray = Array.isArray(selected) ? selected : [selected];
+                return arraysEqual(selectedArray, correct);
+            }
+            return selected === correct;
+        };
+    
+        // Helper function to check if two arrays contain the same elements
+        const arraysEqual = (arr1, arr2) => {
+            if (arr1.length !== arr2.length) return false;
+            arr1 = [...arr1].sort();
+            arr2 = [...arr2].sort();
+            return arr1.every((value, index) => value === arr2[index]);
+        };
+    
+        // Check the answer based on question type
+        if (currentQuestion) {
+            let isCorrect = false;
+            if (currentQuestion.type === 'true/false') {
+                isCorrect = isCorrectAnswer(selectedAnswers, currentQuestion.correctAnswer);
+            } else if (currentQuestion.type === 'multipleChoice') {
+                isCorrect = isCorrectAnswer(selectedAnswers, currentQuestion.correctAnswer);
+            } else if (currentQuestion.type === 'singleChoice') {
+                isCorrectAnswer(selectedAnswers, currentQuestion.correctAnswer);
+            }
+    
+            setFeedback(isCorrect ? 'You are right' : 'Try again');
+        }
+    };
+    
+
 
     return (
         <Container maxWidth="xl">
             {course ? (
                 <>
                     <Typography variant="h4" gutterBottom>
-                        {course.courseFullName || 'Course Name Not Available'}
+                        {course.general.courseInformation.courseFullName || 'Course Name Not Available'}
                     </Typography>
 
                     <Grid container spacing={2}>
@@ -216,87 +255,45 @@ const CourseDetails = () => {
                                             videoSrc ? (
                                                 <>
                                                     <ReactPlayer
-                                                        ref={playerRef}
                                                         url={videoSrc}
-                                                        playing={playing}
-                                                        volume={volume}
-                                                        muted={isMuted}
-                                                        pip={pip}
+                                                        playing={!showModal}
                                                         width="100%"
                                                         height="100%"
-                                                        controls={false}
+                                                        controls
+                                                        onDuration={handleDuration}
+                                                        ref={playerRef}
                                                         onError={(e) => {
                                                             console.error('Error loading video:', e.message);
                                                             setError('Error loading video: ' + e.message);
                                                         }}
-                                                        onProgress={handleProgress}
-                                                    />
-                                                    {showControls && (
-                                                        <div
-                                                            style={{
+                                                        onProgress={handleTimeUpdate}
+                                                    />{showButton && (
+                                                        <Box
+                                                            sx={{
                                                                 position: 'absolute',
-                                                                bottom: 0,
-                                                                left: 0,
-                                                                right: 0,
+                                                                top: '50%',
+                                                                left: '50%',
+                                                                transform: 'translate(-50%, -50%)',
                                                                 backgroundColor: 'rgba(0, 0, 0, 0.7)',
                                                                 padding: '10px',
-                                                                display: 'flex',
-                                                                justifyContent: 'space-between' // Space between left and right controls
+                                                                borderRadius: '4px',
+                                                                zIndex: 10,
                                                             }}
                                                         >
-                                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                                <IconButton onClick={() => handleSeek(-10)} color="inherit">
-                                                                    <Replay10 sx={{ color: 'white' }} />
-                                                                </IconButton>
-                                                                <IconButton onClick={handlePlayPause} color="inherit">
-                                                                    {playing ? (
-                                                                        <Pause sx={{ color: 'white' }} />
-                                                                    ) : (
-                                                                        <PlayArrow sx={{ color: 'white' }} />
-                                                                    )}
-                                                                </IconButton>
-                                                                <IconButton onClick={() => handleSeek(10)} color="inherit">
-                                                                    <Forward10 sx={{ color: 'white' }} />
-                                                                </IconButton>
-                                                                <Slider
-                                                                    value={seekValue}
-                                                                    onChange={handleSeekChange}
-                                                                    aria-labelledby="continuous-slider"
-                                                                    sx={{ width: 300, margin: '0 10px', color: 'white' }}
-                                                                />
-                                                                <Typography variant="body2" color="white">
-                                                                    {formatTime(played)} / {formatTime(duration)}
-                                                                </Typography>
-                                                            </Box>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                                <IconButton onClick={handleToggleMute} color="inherit">
-                                                                    {isMuted ? (
-                                                                        <VolumeOff sx={{ color: 'white' }} />
-                                                                    ) : (
-                                                                        <VolumeUp sx={{ color: 'white' }} />
-                                                                    )}
-                                                                </IconButton>
-                                                                <Slider
-                                                                    value={volume * 100}
-                                                                    onChange={handleVolumeChange}
-                                                                    aria-labelledby="volume-slider"
-                                                                    sx={{ width: 100, color: 'white' }}
-                                                                />
-                                                                <IconButton onClick={handleToggleFullscreen} color="inherit">
-                                                                    {isFullscreen ? (
-                                                                        <FullscreenExit sx={{ color: 'white' }} />
-                                                                    ) : (
-                                                                        <Fullscreen sx={{ color: 'white' }} />
-                                                                    )}
-                                                                </IconButton>
-                                                                <IconButton onClick={handleTogglePip} color="inherit">
-                                                                    <PictureInPictureAlt sx={{ color: 'white' }} />
-                                                                </IconButton>
-                                                                <IconButton onClick={handleSettingsClick} color="inherit">
-                                                                    <Settings sx={{ color: 'white' }} />
-                                                                </IconButton>
-                                                            </Box>
-                                                        </div>
+                                                            <Button
+                                                                variant="contained"
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    top: '50%',
+                                                                    left: '50%',
+                                                                    transform: 'translate(-50%, -50%)',
+                                                                    opacity: 0.7,
+                                                                }}
+                                                                onClick={handleClick}
+                                                            >
+                                                                Answer Question
+                                                            </Button>
+                                                        </Box>
                                                     )}
                                                 </>
                                             ) : (
@@ -319,11 +316,6 @@ const CourseDetails = () => {
                                         ) : (
                                             <Typography variant="body1" color="textSecondary" align="center">
                                                 Select a lesson to view content
-                                            </Typography>
-                                        )}
-                                        {error && (
-                                            <Typography variant="body1" color="error" align="center">
-                                                {error}
                                             </Typography>
                                         )}
                                         <Menu
@@ -349,7 +341,130 @@ const CourseDetails = () => {
                         </Grid>
 
                         <Grid item xs={12} md={4}>
-                            <CourseChapters onLessonSelect={handleLessonSelect} />
+                            {/* <CourseChapters onLessonSelect={handleLessonSelect} /> */}
+
+
+                            <Container>
+                                <Typography variant="h4" gutterBottom>
+                                    {/* {courseFullName} */}
+                                </Typography>
+                                <Typography variant="h5" gutterBottom>
+                                    Course Chapters
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={12}>
+                                        <Card elevation={0}>
+                                            <CardHeader title="Course Chapters" />
+                                            <Divider />
+                                            <CardContent>
+                                                <Box>
+                                                    {courseSection.map((section, index) => (
+                                                        <Accordion key={index}>
+                                                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                                                <Typography variant="h6">{section.sectionTitle}</Typography>
+                                                            </AccordionSummary>
+                                                            <AccordionDetails>
+                                                                <List>
+                                                                    {videoData
+                                                                        .filter(video => video.sectionNumber === index + 1) // Adjust this according to your data structure
+                                                                        .map((video, videoIndex) => (
+                                                                            <ListItem
+                                                                                button
+                                                                                key={video.sectionNumber}
+                                                                                onClick={() => handleLessonClick(_id, video.sectionNumber, section.contentType)}
+                                                                            >
+                                                                                <ListItemText
+                                                                                    primary={video.title}
+                                                                                    secondary={section.contentType === 'Interactive Video' ? 'Interactive Video' : 'YouTube Video'} // Adjust as needed
+                                                                                />
+                                                                            </ListItem>
+                                                                        ))}
+                                                                </List>
+                                                            </AccordionDetails>
+                                                        </Accordion>
+                                                    ))}
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                </Grid>
+                            </Container>
+
+
+                            <Dialog open={showModal} onClose={handleCloseModal}>
+                                <DialogTitle>Question</DialogTitle>
+                                <DialogContent>
+                                    {currentQuestion && (
+                                        <Typography variant="h6" gutterBottom>
+                                            {currentQuestion.questionText}
+                                        </Typography>
+                                    )}
+                                    {currentQuestion && currentQuestion.type === 'true/false' && (
+
+                                        <FormControl component="fieldset">
+                                            <RadioGroup
+                                                aria-label="true-false"
+                                                name="trueFalse"
+                                                value={selectedAnswers}
+                                                onChange={handleOptionChange}
+                                            >
+                                                <FormControlLabel value="true" control={<Radio />} label="True" />
+                                                <FormControlLabel value="false" control={<Radio />} label="False" />
+                                            </RadioGroup>
+                                        </FormControl>
+                                    )}
+                                    {currentQuestion && currentQuestion.type === 'multipleChoice' && (
+                                        <FormControl component="fieldset">
+                                            <FormGroup>
+                                                {currentQuestion.options.map((option, index) => (
+                                                    <FormControlLabel
+                                                        key={index}
+                                                        control={<Checkbox value={option} onChange={handleCheckboxChange} />}
+                                                        label={option}
+                                                    />
+                                                ))}
+                                            </FormGroup>
+                                        </FormControl>
+                                    )}
+                                    {currentQuestion && currentQuestion.type === 'singleChoice' && (
+                                        <FormControl component="fieldset">
+                                            <RadioGroup
+                                                aria-label="single-choice"
+                                                name="singleChoice"
+                                                value={selectedAnswers}
+                                                onChange={handleOptionChange}
+                                            >
+                                                {currentQuestion.options.map((option, index) => (
+                                                    <FormControlLabel
+                                                        key={index}
+                                                        value={option}
+                                                        control={<Radio />}
+                                                        label={option}
+                                                    />
+                                                ))}
+                                            </RadioGroup>
+                                        </FormControl>
+                                    )}
+                                    {feedback && (
+                                        <Typography variant="body1" color={feedback === 'You are right' ? 'green' : 'red'}>
+                                            {feedback}
+                                        </Typography>
+                                    )}
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleSubmit} color="primary">
+                                        Submit
+                                    </Button>
+                                    <Button onClick={handleCloseModal} color="secondary">
+                                        Cancel
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+
+
+
+
+                            {/* Remove Below Code */}
                             {selectedLesson ? (
                                 <div>
                                     <Typography variant="h5" gutterBottom>
