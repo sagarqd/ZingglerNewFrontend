@@ -43,48 +43,50 @@ const CourseCompletionForm = ({ goToNextTab,goToPreviousTab,courseId }) => {
         enableCompletionTracking,
         showActivityCompletionConditions
       };
-  
-      
+
+
       try {
         // Replace `apiEndpoint` with your actual API URL
        const response= await axios.put(`http://localhost:8080/api/courses/${courseId}`, formData);
-  
+
         console.log('Form data submitted:', response.data);
         goToNextTab(response.data.slug);
       } catch (error) {
         console.error('Error saving completion settings:', error);
       }
     };
-  
-    const handleSubmit=async () => {
+
+    const handleSubmit = async () => {
       if (!courseId) {
-        console.error('Course ID is not defined');
-        return;
-      }
-      // Prepare form data
-      const formData = {
-        enableCompletionTracking,
-        showActivityCompletionConditions
-      };
-  
-      
-      try {
-        // Replace `apiEndpoint` with your actual API URL
-       const response= await axios.put(`http://localhost:8080/api/courses/${courseId}`, formData);
-  
-        console.log('Form data submitted:', response.data);
-        navigate('/dashboard/default');
-      } catch (error) {
-        console.error('Error saving completion settings:', error);
+          console.error('Course ID is not defined');
+          return;
       }
 
-    };
+      // Prepare form data
+      const formData = {
+          enableCompletionTracking,
+          showActivityCompletionConditions
+      };
+
+      try {
+          // Submit the form data to the server
+          const response = await axios.put(`http://localhost:8080/api/courses/${courseId}`, formData);
+
+          console.log('Data successfully updated:', response.data);
+
+          // Navigate to the next tab (in this case, the "groups" tab)
+          goToNextTab(response.data.slug); // Pass the slug to goToNextTab
+      } catch (error) {
+          console.error('Error:', error.response ? error.response.data : error.message);
+      }
+  };
+
 
      // Handle navigation to the previous tab
      const handlePrevious = () => {
       goToPreviousTab();
     };
-  
+
     return (
       <>
         <Card variant="outlined" sx={{ width: '100%' }}>
@@ -127,7 +129,7 @@ const CourseCompletionForm = ({ goToNextTab,goToPreviousTab,courseId }) => {
             </form>
           </CardContent>
         </Card>
-  
+
         <Stack direction="row" spacing={2} sx={{ mt: 6, justifyContent: 'flex-end' }}>
           <Button variant="outlined" color="error" sx={{ px: 4 }} onClick={handlePrevious}>
            prev
