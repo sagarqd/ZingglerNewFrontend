@@ -84,6 +84,7 @@ const CourseInformationForm = ({ goToNextTab, onCourseIdGenerated, onCourseSlugG
   }, [courseData, courseId, existingSlug, setValue]);
 
   const onSubmit = async (data) => {
+    let userId = localStorage.getItem('userId');
     try {
       const payload = {
         general: {
@@ -98,6 +99,7 @@ const CourseInformationForm = ({ goToNextTab, onCourseIdGenerated, onCourseSlugG
             selectCourse: data.selectCourse,
           },
         },
+         createdBy: userId,
       };
 
       let response;
@@ -119,7 +121,7 @@ const CourseInformationForm = ({ goToNextTab, onCourseIdGenerated, onCourseSlugG
           onCourseIdGenerated(_id); // Pass the ID to the parent component
           onCourseSlugGenerated(slug); // Pass the slug to the parent component
           console.log("slug:", slug);
-          
+
           goToNextTab(slug); // Move to the next tab
         } else {
           console.error('Course ID not found in response data');

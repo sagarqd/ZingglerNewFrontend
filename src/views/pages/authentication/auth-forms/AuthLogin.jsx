@@ -49,9 +49,11 @@ const AuthLogin = ({ ...others }) => {
         try {
             const response = await axios.post('http://localhost:8080/api/auth/login', formData);
 
-            const { email, token, userType } = response.data;
+            const { userId, email, token, userType } = response.data;
+
 
             // Store email, token, and userType in localStorage
+            localStorage.setItem('userId', userId);
             localStorage.setItem('email', email);
             localStorage.setItem('token', token);
             localStorage.setItem('userType', userType); // Add userType to localStorage

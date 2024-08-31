@@ -207,7 +207,7 @@ const CourseDetails = () => {
             }
             return selected === correct;
         };
-    
+
         // Helper function to check if two arrays contain the same elements
         const arraysEqual = (arr1, arr2) => {
             if (arr1.length !== arr2.length) return false;
@@ -215,7 +215,7 @@ const CourseDetails = () => {
             arr2 = [...arr2].sort();
             return arr1.every((value, index) => value === arr2[index]);
         };
-    
+
         // Check the answer based on question type
         if (currentQuestion) {
             let isCorrect = false;
@@ -226,11 +226,11 @@ const CourseDetails = () => {
             } else if (currentQuestion.type === 'singleChoice') {
                 isCorrectAnswer(selectedAnswers, currentQuestion.correctAnswer);
             }
-    
+
             setFeedback(isCorrect ? 'You are right' : 'Try again');
         }
     };
-    
+
 
 
     return (

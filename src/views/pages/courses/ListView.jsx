@@ -76,7 +76,7 @@ const CourseCard = ({ course, handleClick, setLoading, setCourses, courses }) =>
         if (index === 0) {
             // Navigate to the course detail page
             if (course.slug) {
-                navigate(`/courses/${course.slug}`);
+                navigate(`/courses/${course.slug}/${course._id}`);
             } else {
                 console.error('Course slug is missing');
             }
@@ -133,7 +133,10 @@ const CourseCard = ({ course, handleClick, setLoading, setCourses, courses }) =>
     const updatedAtValid = moment(updatedAt).isValid() ? moment(updatedAt).fromNow() : 'Invalid date';
 
     const baseUrl = 'http://localhost:8080'; // Your backend URL
-    const thumbnailUrl = course.description.thumbnail.courseThumbnail ? `${baseUrl}${course.description.thumbnail.courseThumbnail}` : '';
+    const thumbnailUrl = course.description && course.description.thumbnail && course.description.thumbnail.courseThumbnail
+    ? `${baseUrl}${course.description.thumbnail.courseThumbnail}`
+    : '';
+
 
     return (
         <Card
@@ -302,10 +305,14 @@ const ListView = () => {
 
     useEffect(() => {
         const fetchCourses = async () => {
-            setLoading(true); // Set loading to true when starting the fetch
+            const userId = localStorage.getItem('userId'); // Get user ID from local storage
+            if (!userId) return; // Ensure userId is available before making the request
+            setLoading(true);
             try {
                 console.log('Fetching courses...');
-                const response = await axios.get('http://localhost:8080/api/courses/'); // Replace with your API endpoint
+                const response = await axios.post(`http://localhost:8080/api/my-course`,{
+                    userId: userId,
+                });
 
                 // Filter out courses with 'draft' status
                 const validCourses = response.data.filter((course) => course.status !== 'draft');
@@ -322,6 +329,7 @@ const ListView = () => {
 
         fetchCourses();
     }, []);
+
 
     const handleAddCourseClick = () => {
         navigate('/courses/new-course');

@@ -64,24 +64,32 @@ const CourseEnroll = () => {
 
     const handleEnroll = async () => {
         try {
-            await axios.post('http://localhost:8080/api/student/enroll', {
+            console.log('Selected student ID:', selectedStudent); // Log the student ID being sent
+            const response = await axios.post('http://localhost:8080/api/student/enroll', {
                 studentId: selectedStudent,
                 courseId: courseId
             });
+            console.log('Enrollment response:', response.data);
             alert('Student enrolled successfully');
             // Update student status locally
             setStudents((prevStudents) =>
-                prevStudents.map((student) => (student._id === selectedStudent ? { ...student, enrolled: true } : student))
+                prevStudents.map((student) =>
+                    (student._id === selectedStudent ? { ...student, enrolled: true } : student)
+                )
             );
             navigate('/student-dashboard/overview');
         } catch (error) {
-            console.error('Error enrolling student:', error);
+            console.error('Error enrolling student:', error.response ? error.response.data : error.message);
             alert('Error enrolling student');
         }
     };
 
+
+
+
     const handleOpenDialog = (studentId) => {
         setSelectedStudent(studentId);
+        console.log('Student ID:', studentId);
         setOpenDialog(true);
     };
 
