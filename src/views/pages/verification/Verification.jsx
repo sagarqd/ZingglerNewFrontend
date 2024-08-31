@@ -27,14 +27,14 @@ const VerificationCode = () => {
       const email = localStorage.getItem('email');
       const accessToken = localStorage.getItem('accessToken');
       const otpValue = otp.join('');
-  
+
       if (!email || !accessToken) {
         throw new Error('Email or accessToken not found in localStorage');
       }
-  
-  
+
+
       const response = await axios.post(
-        'http://localhost:8080/api/verify',
+        'http://localhost:8080/api/auth/verify',
         { email, otp: otpValue },
         {
           headers: {
@@ -42,10 +42,10 @@ const VerificationCode = () => {
           }
         }
       );
-  
+
       console.log('Response Status:', response.status);
       console.log('Response Data:', response.data);
-  
+
       if (response.status === 200) {
         console.log('Email verified successfully');
         navigate('/dashboard/default/');
@@ -57,7 +57,7 @@ const VerificationCode = () => {
       setError('Failed to verify email. Please try again.');
     }
   };
-  
+
 
   const handleResend = async () => {
     try {
