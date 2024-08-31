@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-
+import { LoadingButton } from '@mui/lab';
 // Material-UI components
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -33,6 +34,7 @@ const AuthRegister = ({ ...others }) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const customization = useSelector((state) => state.customization);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State variables
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +46,26 @@ const AuthRegister = ({ ...others }) => {
   // Function to handle click on show/hide password button
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
+   
   };
+
+  const handleClick = async () => {
+    setIsSubmitting(true);
+
+    try {
+      // Perform your action here (e.g., form submission)
+      await someAsyncOperation(); // Replace with your actual async operation
+
+      // Reset the form or handle success state here
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error:', error);
+    } finally {
+      // Stop the loading state
+      setIsSubmitting(false);
+    }
+  };
+
 
   // Function to handle mouse down event on password input
   const handleMouseDownPassword = (event) => {
@@ -95,9 +116,7 @@ const AuthRegister = ({ ...others }) => {
     <>
       <Grid container direction="column" justifyContent="center" spacing={2}>
         <Grid item xs={12}>
-          <Box sx={{ alignItems: 'center', display: 'flex' }}>
-            {/* Any header content */}
-          </Box>
+          <Box sx={{ alignItems: 'center', display: 'flex' }}>{/* Any header content */}</Box>
         </Grid>
         <Grid item xs={12} container alignItems="center" justifyContent="center">
           <Box sx={{ mb: 2 }}>
@@ -265,9 +284,19 @@ const AuthRegister = ({ ...others }) => {
 
             <Box sx={{ mt: 2 }}>
               <AnimateButton>
-                <Button disableElevation disabled={isSubmitting} fullWidth size="large" type="submit" variant="contained" color="secondary">
+                <LoadingButton
+                  onClick={handleClick}
+                  loading={isSubmitting}
+                  disableElevation
+                  disabled={isSubmitting}
+                  fullWidth
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                  color="secondary"
+                >
                   Sign up
-                </Button>
+                </LoadingButton>
               </AnimateButton>
             </Box>
           </form>
