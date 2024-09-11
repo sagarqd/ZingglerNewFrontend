@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback  } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Grid, Card, CardHeader, CardContent, Divider, TextField, Button, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useSocket } from '../../../context/SocketProvider'; // Adjust path as needed
+import { useSocket } from '../../../context/SocketProvider';
 
 const NewMeeting = () => {
   const socket = useSocket();
@@ -9,23 +9,36 @@ const NewMeeting = () => {
   const [roomID, setRoomID] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmitForm = useCallback((event) => {
-    event.preventDefault();
-      socket.emit('room:join', { email, roomID });
-  }, [email, roomID, socket]);
+  const handleSubmitForm = useCallback(
+    (event) => {
+      event.preventDefault();
+      if (socket) {
+        socket.emit('room:join', { email, roomID });
+      }
+    },
+    [email, roomID, socket]
+  );
 
-  const handleJoinRoom = useCallback((data) => {
-    const { email, roomID } = data;
-    navigate(`/meetings/${roomID}`, { replace: true });
-  }, [navigate]);
-  
+  const handleJoinRoom = useCallback(
+    (data) => {
+      const { email, roomID } = data;
+      navigate(`/meetings/${roomID}`, { replace: true });
+    },
+    [navigate]
+  );
 
   useEffect(() => {
-    socket.on("room:join", handleJoinRoom);
+    // Ensure socket is available before adding event listeners
+    if (!socket) return;
+
+    socket.on('room:join', handleJoinRoom);
+
     return () => {
-      socket.off("room:join", handleJoinRoom);
+      if (socket) {
+        socket.off('room:join', handleJoinRoom);
+      }
     };
-  }, [socket, handleJoinRoom] );
+  }, [socket, handleJoinRoom]);
 
   return (
     <Grid container spacing={3} justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
