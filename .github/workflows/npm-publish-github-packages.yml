@@ -1,0 +1,56 @@
+name: Build and Deploy React App to EC2
+
+on:
+  push:
+    branches:
+      - main  # Trigger deployment when code is pushed to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code from your repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # Use the Node.js version your project requires
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Build the React app
+      - name: Build React app
+        run: npm run build
+
+      # Archive the build folder into a .zip file
+      - name: Archive build folder
+        run: zip -r build.zip build/
+
+      # Deploy to EC2
+      - name: Deploy to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "build.zip"
+          target: "${{ secrets.EC2_DEPLOY_PATH }}"
+
+      # Unzip the build files on EC2 and move to the appropriate directory
+      - name: Extract and deploy on EC2
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd ${{ secrets.EC2_DEPLOY_PATH }}
+            unzip -o build.zip
+            sudo mv build/* /var/www/html/  # Adjust path as per your web server config
+            sudo systemctl restart nginx    # Restart Nginx or your web server
