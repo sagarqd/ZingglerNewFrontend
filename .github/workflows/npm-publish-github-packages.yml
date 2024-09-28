@@ -52,5 +52,5 @@ jobs:
           script: |
             cd ${{ secrets.EC2_DEPLOY_PATH }}
             unzip -o build.zip
-            sudo mv build/* /var/www/html/  # Adjust path as per your web server config
+            sudo mv dist/* /var/www/html/  # Adjust path as per your web server config
             sudo systemctl restart nginx    # Restart Nginx or your web server
