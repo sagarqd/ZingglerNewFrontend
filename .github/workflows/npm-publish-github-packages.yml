@@ -30,7 +30,7 @@ jobs:
 
       # Archive the build folder into a .zip file
       - name: Archive build folder
-        run: zip -r build.zip build/
+        run: zip -r build.zip dist/
 
       # Deploy to EC2
       - name: Deploy to EC2
