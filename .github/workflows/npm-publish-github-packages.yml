@@ -42,15 +42,16 @@ jobs:
           source: "build.zip"
           target: "${{ secrets.EC2_DEPLOY_PATH }}"
 
-      # Unzip the build files on EC2 and move to the appropriate directory
-      - name: Extract and deploy on EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v0.1.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            cd ${{ secrets.EC2_DEPLOY_PATH }}
-            unzip -o build.zip
-            sudo mv dist/* /var/www/html/  # Adjust path as per your web server config
-            sudo systemctl restart nginx    # Restart Nginx or your web server
+           host: ${{ secrets.EC2_HOST }}
+           username: ${{ secrets.EC2_USER }}
+           key: ${{ secrets.EC2_KEY }}       # Your private key from GitHub secrets
+           passphrase: ""                    # Add passphrase if the key has one, or leave empty
+           script: |
+             cd ${{ secrets.EC2_DEPLOY_PATH }}
+             unzip -o build.zip
+             sudo mv dist/* /var/www/html/  # Adjust based on your web server's document root
+             sudo systemctl restart nginx    # Restart the web server
+           debug: true
