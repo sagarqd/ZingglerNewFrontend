@@ -48,10 +48,10 @@ jobs:
            host: ${{ secrets.EC2_HOST }}
            username: ${{ secrets.EC2_USER }}
            key: ${{ secrets.EC2_KEY }}       # Your private key from GitHub secrets
-           passphrase: ""                    # Add passphrase if the key has one, or leave empty
+           port: 22              # Add passphrase if the key has one, or leave empty
            script: |
              cd ${{ secrets.EC2_DEPLOY_PATH }}
              unzip -o build.zip
-             sudo mv dist/* /var/www/html/  # Adjust based on your web server's document root
+             sudo mv dist/* /var/www/zinggerrlms  # Adjust based on your web server's document root
              sudo systemctl restart nginx    # Restart the web server
            debug: true
