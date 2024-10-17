@@ -38,6 +38,10 @@ import SamplePage from 'views/sample-page';
 import Homepage from 'views/pages/Homepage/Homepage';
 import AddNewStudents from 'views/pages/student/AddNewStudents';
 import CourseEnroll from 'views/pages/courses/CourseEnroll';
+import TeacherProfile from 'views/pages/teacher/TeacherProfile';
+import TeacherList from 'views/pages/teacher/TeacherList';
+import AddNewTeacher from 'views/pages/teacher/AddNewTeacher';
+
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -59,14 +63,14 @@ const MainRoutes = {
             ]
         },
         {
-          path: 'student-dashboard',
-          element: <MainLayout />,
-          children: [
-            {
-              path: 'overview',
-              element: <StudentDashboardOverview />
-            }
-          ]
+            path: 'student-dashboard',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'overview',
+                    element: <StudentDashboardOverview />
+                }
+            ]
         },
         {
             path: 'utils',
@@ -88,6 +92,27 @@ const MainRoutes = {
         {
             path: 'sample-page',
             element: <SamplePage />
+        },
+        {
+            path: 'teachers',
+            element: <MainLayout />,
+            children: [
+               
+                {
+                    path: 'teacher-Profile',
+                    element: <TeacherProfile />
+                },
+                 {
+                    path: 'teacher-list',
+                    element: <TeacherList />
+                },
+                {
+                    path: 'add-new-teacher',
+                    element: <AddNewTeacher />
+                }
+                
+               
+            ]
         },
         {
             path: 'users',
@@ -119,84 +144,84 @@ const MainRoutes = {
             path: 'courses',
             element: <MainLayout />,
             children: [
-              {
-                  path: 'course-list',
-                  element: <ListView />
-              },
-              {
-                  path: 'course-grid',
-                  element: <GridView />
-              },
-              {
-                path: 'new-course/:tab?',
-                element: <NewCourse />
-              },
-              {
-                  path: 'new-course/general',
-                  element: <NewCourse initialTab="general" />
-              },
-              {
-                  path: 'new-course/description',
-                  element: <NewCourse initialTab="description" />
-              },
-              {
-                  path: 'new-course/course-format',
-                  element: <NewCourse initialTab="course-format" />
-              },
-              {
-                  path: 'new-course/section',
-                  element: <NewCourse initialTab="section" />
-              },
-              {
-                  path: 'new-course/appearance',
-                  element: <NewCourse initialTab="appearance" />
-              },
-              {
-                  path: 'new-course/completion',
-                  element: <NewCourse initialTab="completion" />
-              },
-              {
-                  path: 'new-course/groups',
-                  element: <NewCourse initialTab="groups" />
-              },
-              {
-                  path: ':slug/general',
-                  element: <NewCourse />
-              },
-              {
-                  path: ':slug/description',
-                  element: <NewCourse />
-              },
-              {
-                  path: ':slug/course-format',
-                  element: <NewCourse />
-              },
-              {
-                  path: ':slug/section',
-                  element: <NewCourse />
-              },
-              {
-                  path: ':slug/appearance',
-                  element: <NewCourse />
-              },
-              {
-                  path: ':slug/completion',
-                  element: <NewCourse />
-              },
-              {
-                  path: ':slug/groups',
-                  element: <NewCourse />
-              },
-              {
-                  path: '/courses/:slug/:_id',
-                  element: <CourseDetails />
-              },
-              {
-                path: 'enroll',
-                element: <CourseEnroll />
-            }
+                {
+                    path: 'course-list',
+                    element: <ListView />
+                },
+                {
+                    path: 'course-grid',
+                    element: <GridView />
+                },
+                {
+                    path: 'new-course/:tab?',
+                    element: <NewCourse />
+                },
+                {
+                    path: 'new-course/general',
+                    element: <NewCourse initialTab="general" />
+                },
+                {
+                    path: 'new-course/description',
+                    element: <NewCourse initialTab="description" />
+                },
+                {
+                    path: 'new-course/course-format',
+                    element: <NewCourse initialTab="course-format" />
+                },
+                {
+                    path: 'new-course/section',
+                    element: <NewCourse initialTab="section" />
+                },
+                {
+                    path: 'new-course/appearance',
+                    element: <NewCourse initialTab="appearance" />
+                },
+                {
+                    path: 'new-course/completion',
+                    element: <NewCourse initialTab="completion" />
+                },
+                {
+                    path: 'new-course/groups',
+                    element: <NewCourse initialTab="groups" />
+                },
+                {
+                    path: ':slug/general',
+                    element: <NewCourse />
+                },
+                {
+                    path: ':slug/description',
+                    element: <NewCourse />
+                },
+                {
+                    path: ':slug/course-format',
+                    element: <NewCourse />
+                },
+                {
+                    path: ':slug/section',
+                    element: <NewCourse />
+                },
+                {
+                    path: ':slug/appearance',
+                    element: <NewCourse />
+                },
+                {
+                    path: ':slug/completion',
+                    element: <NewCourse />
+                },
+                {
+                    path: ':slug/groups',
+                    element: <NewCourse />
+                },
+                {
+                    path: '/courses/:slug/:_id',
+                    element: <CourseDetails />
+                },
+                {
+                    path: 'enroll',
+                    element: <CourseEnroll />
+                }
 
-          ]
+            ]
         },
         {
             path: 'students',
@@ -253,7 +278,8 @@ const MainRoutes = {
         {
             path: 'home',
             element: <Homepage />
-        }
+        },
+      
     ]
 };
 

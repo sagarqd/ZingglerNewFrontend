@@ -42,7 +42,7 @@ const CourseEnroll = () => {
             const fetchData = async () => {
                 try {
                     // Fetch students
-                    const studentsResponse = await axios.get('http://localhost:8080/api/student/student-list');
+                    const studentsResponse = await axios.get('http://localhost:8080/api/student/');
                     console.log('Fetched students data:', studentsResponse.data);
                     setStudents(studentsResponse.data);
 

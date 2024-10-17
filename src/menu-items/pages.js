@@ -99,6 +99,12 @@ const adminPages = {
           title: 'Teacher Profile',
           type: 'item',
           url: '/teachers/teacher-profile'
+        },
+        {
+          id: 'add-new-teacher',
+          title: 'Add New Teacher',
+          type: 'item',
+          url: '/teachers/add-new-teacher'
         }
       ]
     },

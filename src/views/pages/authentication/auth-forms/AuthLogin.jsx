@@ -50,6 +50,7 @@ const AuthLogin = ({ ...others }) => {
             const response = await axios.post('http://localhost:8080/api/auth/login', formData);
 
             const { userId, email, token, userType } = response.data;
+            console.log(response.data)
 
 
             // Store email, token, and userType in localStorage
@@ -65,13 +66,20 @@ const AuthLogin = ({ ...others }) => {
             console.log('Login successful:', { email, token, userType });
 
             // Navigate to the appropriate dashboard based on userType
-            if (userType === 'admin') {
-                navigate('/dashboard/default');
-            } else if (userType === 'student') {
+            // if (userType === 'admin') {
+            //     navigate('/dashboard/default');
+            // } else if (userType === 'student') {
+            //     navigate('/student-dashboard/overview');
+            // } else {
+            //     navigate('/dashboard/default');
+            // }
+            console.log(userType)
+            if(userType === "admin"){
+                navigate("/dashboard/default")
+            } else if(userType === "student"){
                 navigate('/student-dashboard/overview');
-            } else {
-                navigate('/dashboard/default');
-            }
+            } 
+             console.log(userType, "this is")
 
             setApiError(null); // Clear any previous error
         } catch (error) {
@@ -100,6 +108,8 @@ const AuthLogin = ({ ...others }) => {
         dispatch(logout()); // Assuming you have a logout action
         navigate('/login');
     };
+
+    
 
     return (
         <>

@@ -157,7 +157,7 @@ const GridView = () => {
               mb: { xs: 2, sm: 0 }
             }}
           >
-            All Courses
+            All Courses 
           </Typography>
           <Box
             sx={{
@@ -176,6 +176,7 @@ const GridView = () => {
             >
               Add New Course
             </Button>
+            
             <OutlinedInput
               fullWidth
               variant="outlined"

@@ -44,6 +44,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "apexcharts": "^3.46.2",
     "axios": "^1.7.2",
+    "caniuse-lite": "^1.0.30001669",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.12",
     "draftjs-to-html": "^0.9.1",

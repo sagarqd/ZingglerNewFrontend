@@ -49,7 +49,7 @@ const CourseInformationForm = ({ selectedDate, setSelectedDate, educationFields,
       />
       <Divider />
       <CardContent>
-        <form noValidate autoComplete="off">
+        <form noValidate autoComplete="off"> 
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <TextField

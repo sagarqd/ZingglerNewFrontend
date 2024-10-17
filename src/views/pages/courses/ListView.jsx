@@ -388,7 +388,7 @@ const ListView = () => {
               mb: { xs: 2, sm: 0 } // Margin bottom for mobile
             }}
           >
-            All Courses
+            All Courses  
           </Typography>
           <Box
             sx={{

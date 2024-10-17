@@ -15,7 +15,7 @@ const adminDashboard = {
       id: 'overview',
       title: 'Overview',
       type: 'item',
-      url: '/admin-dashboard/overview',
+      url: '/dashboard/default',
       icon: icons.IconDashboard,
       breadcrumbs: false
     }
@@ -40,10 +40,43 @@ const studentDashboard = {
   ]
 };
 
+// ==============================|| TEACHER DASHBOARD MENU ITEMS ||============================== //
+
+const teacherDashboard = {
+  id: 'teacher-dashboard',
+  title: 'Teacher Dashboard',
+  type: 'group',
+  children: [
+    {
+      id: 'overview',
+      title: 'Overview',
+      type: 'item',
+      url: '/teacher-dashboard/overview', 
+      icon: icons.IconDashboard,
+      breadcrumbs: false
+    }
+    
+  ]
+};
+
 // ==============================|| EXPORT DASHBOARD ITEMS ||============================== //
 
+// const getDashboardForUserType = (userType) => {
+//   return userType === 'student' ? studentDashboard : adminDashboard;
+// };
+
+// export default getDashboardForUserType;
+
+
+
 const getDashboardForUserType = (userType) => {
-  return userType === 'student' ? studentDashboard : adminDashboard;
+  if (userType === 'student') {
+    return studentDashboard; 
+  } else if (userType === 'teacher') {
+    return teacherDashboard; 
+  } else {
+    return adminDashboard; 
+  }
 };
 
 export default getDashboardForUserType;
