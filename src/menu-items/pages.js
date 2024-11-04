@@ -108,6 +108,26 @@ const adminPages = {
         }
       ]
     },
+     {
+       id: 'asset',
+      title: 'Assets',
+       type: 'collapse',
+       icon: icons.IconChalkboard,
+       children: [
+         {
+          id: 'show-assests',
+           title: 'Show Assests',
+          type: 'item',
+           url: '/asset/show-asset'
+         },
+         {
+          id: 'list-assests',
+           title: 'List Assests',
+          type: 'item',
+           url: '/asset/list-asset'
+         }
+       ]
+     },
     {
       id: 'students',
       title: 'Students',
@@ -227,7 +247,8 @@ const adminPages = {
           url: '/games/color-tablet'
         }
       ]
-    }
+    },
+  
   ]
 };
 
@@ -250,7 +271,7 @@ const studentPages = {
           url: '/courses/my-course-list'
         }
       ]
-    }
+    },
   ]
 };
 

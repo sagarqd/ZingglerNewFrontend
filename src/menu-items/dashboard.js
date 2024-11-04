@@ -59,6 +59,25 @@ const teacherDashboard = {
   ]
 };
 
+// ==============================|| STAFF DASHBOARD MENU ITEMS ||============================== //
+
+const staffDashboard = {
+  id: 'staff-dashboard',
+  title: 'Staff Dashboard',
+  type: 'group',
+  children: [
+    {
+      id: 'overview',
+      title: 'Overview',
+      type: 'item',
+      url: '/staff-dashboard/overview',
+      icon: icons.IconDashboard,
+      breadcrumbs: false
+    }
+  ]
+};
+
+
 // ==============================|| EXPORT DASHBOARD ITEMS ||============================== //
 
 // const getDashboardForUserType = (userType) => {
@@ -74,9 +93,12 @@ const getDashboardForUserType = (userType) => {
     return studentDashboard; 
   } else if (userType === 'teacher') {
     return teacherDashboard; 
+  } else if (userType === 'staff') {
+    return staffDashboard;
   } else {
     return adminDashboard; 
   }
 };
+
 
 export default getDashboardForUserType;

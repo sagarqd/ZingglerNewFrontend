@@ -41,7 +41,10 @@ import CourseEnroll from 'views/pages/courses/CourseEnroll';
 import TeacherProfile from 'views/pages/teacher/TeacherProfile';
 import TeacherList from 'views/pages/teacher/TeacherList';
 import AddNewTeacher from 'views/pages/teacher/AddNewTeacher';
-
+import ShowStaff from 'views/pages/staff/ShowStaff';
+import StaffDashboard from 'views/pages/staff/StaffDashboard';
+import Assets from 'views/pages/asset/Assets';
+import ShowAssets from 'views/pages/asset/ShowAssets';
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -97,12 +100,12 @@ const MainRoutes = {
             path: 'teachers',
             element: <MainLayout />,
             children: [
-               
+
                 {
                     path: 'teacher-Profile',
                     element: <TeacherProfile />
                 },
-                 {
+                {
                     path: 'teacher-list',
                     element: <TeacherList />
                 },
@@ -110,10 +113,25 @@ const MainRoutes = {
                     path: 'add-new-teacher',
                     element: <AddNewTeacher />
                 }
-                
-               
+
+
             ]
         },
+        {
+            path: 'staff',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'staff-dashboard',
+                    element: <StaffDashboard />
+                },
+                {
+                    path: 'show-staff',
+                    element: <ShowStaff />
+                }
+            ]
+        },
+
         {
             path: 'users',
             element: <MainLayout />,
@@ -279,7 +297,22 @@ const MainRoutes = {
             path: 'home',
             element: <Homepage />
         },
-      
+        {
+            path: 'asset',
+            element: <MainLayout />,
+            children: [
+                {
+                    path: 'list-asset',
+                    element: <Assets />
+                },
+                {
+                    path: 'show-Asset',
+                    element: <ShowAssets />
+
+                }
+            ]
+        }
+
     ]
 };
 
